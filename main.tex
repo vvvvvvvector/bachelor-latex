@@ -1,5 +1,8 @@
 \documentclass[a4paper,12pt,oneside]{book}
 
+\usepackage{biblatex}
+\addbibresource{bibliography.bib} 
+
 \usepackage{amsthm} % definicje
 
 \theoremstyle{definition}
@@ -38,7 +41,7 @@
 \chapter*{Wstęp}
 \addcontentsline{toc}{chapter}{Wstęp}
 
- Graficzny interfejs użytkownika (ang. graphical user interface, \textbf{GUI}) jest typem interfejsu za pomocą którego użytkownik wchodzi w interakcję z komputerem, programem. Dobrze przemyślony, wygodny, niezawodny, pomagający użytkownikowi interfejs napewno poszerza grono użytkowników aplikacji, co może m.in dobrze wpłynąć na rozwój biznesu lub czyjś suksec twórcy. Na przykład co by było gdyby systemy operacyjne nie miały interfejsów graficznych? Brak interfejsu bardzo podwyższa poziom przygotowania dla korzystania z takiej / takiego aplikacji / programu. Interjesy robią skomplikowane programy dostępnymi dla wielu ludzi, niskopoziomowe staje się wysokopoziomowym. Interfejsy graficzne są bardzo ważną częścią każdej aplikacji. Często patrząc tylko na wizualny wygląd już nie chce z niej korzytać. To jest źle, dla niektórych użytkowników to może być bardzo krytyczne i oni pójdą szukać inne rozwiązania, szkoda, bo ze względu na funkcjonalność aplikacja może być bardzo bogata. Dlatego jest bardzo ważne dbać o to, żeby aplikacja była nie tylko funkcjonalna, ale i nie było lagów, była atrakcyjna, wygodna, dostępna. Istnieją pojęcia jak \textbf{UX} i \textbf{UI}. 
+ Graficzny interfejs użytkownika (ang. graphical user interface, \textbf{GUI}) jest typem interfejsu za pomocą którego użytkownik wchodzi w interakcję z komputerem, programem. Dobrze przemyślony, wygodny, niezawodny, pomagający użytkownikowi interfejs napewno poszerza grono użytkowników aplikacji, co może m.in dobrze wpłynąć na rozwój biznesu lub suksec twórcy. Wyobraźmy, na przykład, co by było gdyby systemy operacyjne nie miały interfejsów graficznych? Brak interfejsu bardzo podwyższa poziom przygotowania dla korzystania z takiej / takiego aplikacji / programu. Interfejsy, w większości, robią skomplikowane programy dostępnymi dla wielu ludzi. Niskopoziomowe staje się wysokopoziomowym. Interfejsy graficzne są bardzo ważną częścią każdej aplikacji. Często patrząc tylko na wizualny wygląd już nie chce z niej korzytać. To jest źle, dla niektórych użytkowników to może być bardzo krytyczne i oni pójdą szukać inne rozwiązania, szkoda, bo ze względu na funkcjonalność aplikacja może być bardzo bogata. Dlatego jest bardzo ważne dbać o to, żeby aplikacja była nie tylko funkcjonalna, ale i nie było lagów, była atrakcyjna, wygodna, dostępna.
 
 \chapter{Informacje wstępne}
 
@@ -90,7 +93,7 @@ Problem SAT jest pierwszym problemem którego NP-zupełność wykazano, to jest 
 
 \section{SAT-solver}
 
-\textbf{SAT-solver} jest programem mający na celu rozwiązanie problemu spełnialności. Na wejściu program przyjmuje formulę w postaci CNF, a na wejściu zwraca odpowiedź, czy podana formuła jest lub nie jest spełnialna. Często, SAT-solvery zwracają nie tylko informację o spełnialności, ale też przykładowe wartościowanie, jeśli formuła była spełnialna, lub minimalny zbiór niespełnialnych klauzul, jeśli formuła była niespełnialna. Zwrócone wartościowanie w razie spełnialności można wykorzystać dla znalezienia kolejnych wartościowań, algorytm jest następny: 
+\textbf{SAT-solver} jest programem mający na celu rozwiązanie problemu spełnialności. Na wejściu program przyjmuje formulę w postaci CNF, a na wejściu zwraca odpowiedź, czy podana formuła jest lub nie jest spełnialna. Często, SAT-solvery zwracają nie tylko informację o spełnialności, ale też przykładowe wartościowanie, jeśli formuła była spełnialna, lub minimalny zbiór niespełnialnych klauzul, jeśli formuła była niespełnialna. Zwrócone wartościowanie w razie spełnialności można wykorzystać dla znalezienia kolejnych wartościowań, gdzie algorytm jest następny: 
 
 \begin{enumerate}
     \item otrzymujemy przykładowe wartościowanie
@@ -104,15 +107,15 @@ Problem SAT jest pierwszym problemem którego NP-zupełność wykazano, to jest 
 
 Since the introduction of algorithms for SAT in the 1960s, modern SAT solvers have grown into complex software artifacts involving a large number of heuristics and program optimizations to work efficiently.
 
-By a result known as the Cook–Levin theorem, Boolean satisfiability is an NP-complete problem in general. As a result, only algorithms with exponential worst-case complexity are known. In spite of this, efficient and scalable algorithms for SAT were developed during the 2000s and have contributed to dramatic advances in our ability to automatically solve problem instances involving tens of thousands of variables and millions of constraints.[1]
+SAT-solvery są szeroko stosowane w różnych dziedzinach: sztucznej inteligencji, kryptografii, problemach optymalizacji.
 
-SAT solvers often begin by converting a formula to conjunctive normal form. They are often based on core algorithms such as the DPLL algorithm, but incorporate a number of extensions and features. Most SAT solvers include time-outs, so they will terminate in reasonable time even if they cannot find a solution with an output such as "unknown". Often, SAT solvers do not just provide an answer, but can provide further information including an example assignment (values for x, y, etc.) in case the formula is satisfiable or minimal set of unsatisfiable clauses if the formula is unsatisfiable.
+The success of SAT-solvers has also led to the development of specialized variants and extensions. Some examples include weighted and partial SAT-solvers, which handle optimization variants of the problem, and incremental SAT-solvers, which efficiently solve related SAT instances by leveraging previously learned information.
 
-Modern SAT solvers have had a significant impact on fields including software verification, program analysis, constraint solving, artificial intelligence, electronic design automation, and operations research. Powerful solvers are readily available as free and open-source software and are built into some programming languages such as exposing SAT solvers as constraints in constraint logic programming.
+Their ability to handle large and complex problem instances has made them indispensable in various domains.
 
 \section{Format DIMACS CNF}
 
-DIMACS CNF to format tekstowy reprezentujący formułę w koniunkcyjnej postaci normalnej. Żeby sukcesywnie zakodować formułę do tego formatu trzeba pilnować kilka reguł: 
+DIMACS CNF to format tekstowy reprezentujący formułę w koniunkcyjnej postaci normalnej. Pliki z formułami mogą być w dowolnym formacie tekstowym, ale najczęściej stosują się *.cnf lub *.txt. Żeby sukcesywnie zakodować formułę do tego formatu trzeba pilnować kilka reguł: 
 
 \begin{enumerate}
     \item linie zaczynające się od znaku \textit{c} przedstawiają komentarze
@@ -141,27 +144,36 @@ może być zakodowana w DIMACS CNF jako:
 
 \section{Cel i zakres pracy}
 
-Celem pracy jest stworzenie wygodnego, atrakcyjnego i dostępnego dla wszystkich interfejsu graficznego nawet dla takiego barzdo specyficznego i skomplikowanego programu jak SAT-solver. Dostępność zapewnijmy tworząc aplikację webową dlatego, że nie wymaga żadnych nipotrzebnych instalacji, działa prawie wszędzie i \textit{out of the box}, potrzebny jest tylko internet. Wygodność zapewnijmy przemyślonym interfejsem, który będzie mówił sam za siebie i w razie problemów pomagał użytkownikowi w ich rozwiązaniem za pomocą odpowiednich komunikatów i sugestii. W pracy zostanie omówniony proces projektu, oraz implementacji niektórych, najbardziej interesujących części aplikacji. Frontend będzie stworzony za pomocą biblioteki \textbf{React}, a backend za pomocą biblioteki \textbf{FastAPI}, z zainstalowanej na nim biblioteki \textbf{PySAT}, która daję możliwość korzystać z wielu zaimplementowanych SAT-solverów. 
+Celem pracy jest stworzenie wygodnego, atrakcyjnego i dostępnego dla wszystkich interfejsu graficznego nawet dla takiego barzdo specyficznego i skomplikowanego programu jak SAT-solver. Dostępność zapewnijmy tworząc aplikację webową dlatego, że nie wymaga od użytkownika żadnych nipotrzebnych instalacji, działa prawie wszędzie i \textit{out of the box}, potrzebny jest tylko internet. Wygodność zapewnijmy przemyślonym interfejsem, który będzie mówił sam za siebie i w razie problemów pomagał użytkownikowi w ich rozwiązaniu za pomocą odpowiednich komunikatów i sugestii. W pracy zostanie omówniony proces projektu, oraz implementacji niektórych, najbardziej interesujących części aplikacji. Frontend będzie stworzony za pomocą biblioteki \textbf{React}, a backend za pomocą biblioteki \textbf{FastAPI}, z zainstalowanej na nim biblioteki \textbf{PySAT}, która daję możliwość korzystać z wielu zaimplementowanych SAT-solverów. 
 
 \chapter{Projekt}
 
-\section{Analiza wymagań}
+\section{Analiza wymagań / Definicja funkcjonalności}
 
-\lipsum[1]
+Wygląd aplikacji mocno zależy od tego, jak zdefiniujemy funkcjonalności, więc:  
 
-\lipsum[2]
+\begin{itemize}
+    \item parsowanie formuły z pliku w formacie DIMACS CNF do CNF
+    \item możliwość edycji formuły w postaci CNF
+    \item wyświetlanie w wygodny sposób formuł w postaci CNF (dzielenie dużych formuł na strony; wyświetlanie tylko odpowiedniej ilości klauzul na jednej stronie)
+    \item formuła w postaci CNF dostaje możliwość edycji, czyli można: modyfikować, usuwać, dodawać klauzule
+    \item kiedy zmienia się formuła w postaci CNF, zmienia się jednocześnie formuła w DIMACS CNF w edytorze
+    \item wczytywanie formuł z pliku
+    \item zapisywanie formuły w formacie DIMACS CNF do pliku
+    \item wyświetlanie w wygodny sposób dużych wartościowań spełniających formułę
+    \item poprawianie automatyczne formuły (na końcach linii są dopisywane zera, liczby zmiennych i klauzul w nagłówku są poprawiane na odpowiednie, puste linie są usuwane, niepoprawne klauzule są usuwane)
+    \item wyświetlanie ilości znalezionych rozwiązań
+    \item zapisywanie pojedynczego wartościowania w postaci ``binarnej''
+    \item możliwość znalezienia i wyświetlenia pojedynczego wartościowania spełniającego formułę
+    \item możliwość znalezienia i wyświetlenia wszystkich wartościowań spełniających
+    \item usuwanie zduplikowanych klauzul z formuły
+    \item możliwość lączenia dwóch formuł w jedną, co z kolei daje możliwość lączenia dowolnej ilości formuł
+    \item edytor DIMACSów: sprawdzanie poprawności edytowanych plików
+    \item edytor DIMACSów: wszkazuwanie błędów. Kody błędów z opisem 0 -> ('no empty lines allowed'), 1 -> ('invalid formula definition'), 2 -> ('clause must end with 0'), 3 -> ('invalid clause'), 4 -> (`formula was already defined in line formulaDefinitionRow.current), 5 -> (`Wrong variable value: varError => range[1..rangeInDef]`)
+    \item edytor DIMACSów: edytor, w razie błedów w formule, daje użytkownikowi indywidualne do każdego błędu sugestie do poprawienia
+\end{itemize}
 
-\lipsum[3]
-
-\section{Prototyp}
-
-\lipsum[1]
-
-\lipsum[2]
-
-\lipsum[3]
-
-\section{Architektura aplikacji}
+\section{Prototypowanie interfejsu}
 
 \lipsum[1]
 
@@ -170,6 +182,8 @@ Celem pracy jest stworzenie wygodnego, atrakcyjnego i dostępnego dla wszystkich
 \lipsum[3]
 
 \section{Wybór narzędzi}
+
+\subsection{PySAT}
 
 \lipsum[1]
 
@@ -186,6 +200,14 @@ Celem pracy jest stworzenie wygodnego, atrakcyjnego i dostępnego dla wszystkich
 \lipsum[3]
 
 \subsection{React}
+
+\lipsum[1]
+
+\lipsum[2]
+
+\lipsum[3]
+
+\section{Architektura aplikacji}
 
 \lipsum[1]
 
@@ -242,7 +264,9 @@ Celem pracy jest stworzenie wygodnego, atrakcyjnego i dostępnego dla wszystkich
 
 Ja chcę, żeby mój program stał się początkiem tworzenia interfejsów graficznych dla różnych rodzajów SAT-solverów. Ze względu na brak takich programów. W mojej pracy dotknąłem tylko mało część, dużo rzeczy można jeszcze do tego dodać.
 
-Będę zawsze otwarty na takie propozycję na GitHubie. Chciałbym, żeby studenci naszej uczelni w swoich pracach licencjackich lub nawet magisterskich kontynuowali rozwijanie i polepszenie mojego programu.
+Będę \cite{einstein} zawsze otwarty na takie propozycję na GitHubie. Chciałbym, żeby \cite{dirac} studenci naszej uczelni w \cite{dirac} swoich pracach licencjackich lub \cite{knuthwebsite} nawet magisterskich \cite{knuth-fa} kontynuowali rozwijanie i polepszenie mojego programu.
+
+\printbibliography[title=Bibliografia]
 
 \addcontentsline{toc}{chapter}{Bibliografia}
 
