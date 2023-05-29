@@ -43,7 +43,7 @@
 
  Graficzny interfejs użytkownika (ang. graphical user interface, \textbf{GUI}) jest typem interfejsu za pomocą którego użytkownik wchodzi w interakcję z komputerem, programem. Dobrze przemyślony, wygodny, niezawodny, pomagający użytkownikowi interfejs napewno poszerza grono użytkowników aplikacji, co może m.in dobrze wpłynąć na rozwój biznesu lub suksec twórcy. Wyobraźmy, na przykład, co by było gdyby systemy operacyjne nie miały interfejsów graficznych? Brak interfejsu bardzo podwyższa poziom przygotowania dla korzystania z takiej / takiego aplikacji / programu. Interfejsy, w większości, robią skomplikowane programy dostępnymi dla wielu ludzi. Niskopoziomowe staje się wysokopoziomowym. Interfejsy graficzne są bardzo ważną częścią każdej aplikacji. Często patrząc tylko na wizualny wygląd już nie chce z niej korzytać. To jest źle, dla niektórych użytkowników to może być bardzo krytyczne i oni pójdą szukać inne rozwiązania, szkoda, bo ze względu na funkcjonalność aplikacja może być bardzo bogata. Dlatego jest bardzo ważne dbać o to, żeby aplikacja była nie tylko funkcjonalna, ale i nie było lagów, była atrakcyjna, wygodna, dostępna.
 
-\chapter{Informacje wstępne}
+\chapter{Wprowadzenie}
 
 \section{CNF}
 
@@ -71,13 +71,11 @@ Przykłady literałów:
     gdzie każde $p_{ij}$ jest literałem.
 \end{formal}
 
-Każdą formułę logiczną można przedstawić w postaci CNF / Każde wyrażenie logiczne ma koniunkcyjną postać normalną.
+Każdą formułę logiczną można przedstawić równoważnie w postaci CNF. Dla jednej formuły logicznej może istnieć kilka równoważnych jej formuł w CNF.  
 
-Dla jednej formuły logicznej może istnieć kilka równoważnych jej formuł w CNF.  
+\section{Problem spełnialności formuł logicznych}
 
-\section{Problem spełnialności}
-
-\textbf{Problem spełnialności} jest ważym problemem algorytmicznym dla teorii złożoności obliczeniowej. Wejściem problemu jest formuła logiczna w postaci CNF. Problem polega na znalezieniu podstawienia / wartościowania, tzn. wartości wszystkich zmiennych zdaniowych, takich, kiedy formuła staje się prawdziwa. Formula, która posiada takie wartościowanie nazywamy formułą \textit{spełnialną / satisfiable / SAT}, a która nie, odpowiednio \textit{niespełnialna / unsatisfiable / UNSAT}.
+\textbf{Problem spełnialności formuł logicznych} jest ważym problemem obliczeniowym w teorii złożoności. Wejściem problemu jest formuła logiczna w postaci CNF. Problem polega na znalezieniu wartościowania, tzn. wartości wszystkich zmiennych zdaniowych, takich, kiedy formuła staje się prawdziwa. Formułę, która posiada takie wartościowanie nazywamy formułą \textit{spełnialną} (ang. satisfiable), a która nie, odpowiednio \textit{niespełnialna} (ang. unsatisfiable).
 
 Na przykład, formuła
 \begin{center}
@@ -91,38 +89,34 @@ jest spełnialna, dlatego, że istnieje wartościowanie które ją spełnia, np.
 
 Problem SAT jest pierwszym problemem którego NP-zupełność wykazano, to jest \textbf{Twierdzenie Cooka-Levina}.
 
-\section{SAT-solver}
+\section{SAT-solvery}
 
-\textbf{SAT-solver} jest programem mający na celu rozwiązanie problemu spełnialności. Na wejściu program przyjmuje formulę w postaci CNF, a na wejściu zwraca odpowiedź, czy podana formuła jest lub nie jest spełnialna. Często, SAT-solvery zwracają nie tylko informację o spełnialności, ale też przykładowe wartościowanie, jeśli formuła była spełnialna, lub minimalny zbiór niespełnialnych klauzul, jeśli formuła była niespełnialna. Zwrócone wartościowanie w razie spełnialności można wykorzystać dla znalezienia kolejnych wartościowań, gdzie algorytm jest następny: 
+\textbf{SAT-solver} jest programem mający na celu rozwiązanie problemu spełnialności. Na wejściu program przyjmuje formulę w postaci CNF, a na wyjściu zwraca odpowiedź, czy podana formuła jest lub nie jest spełnialna. Oryginalny SAT-solver wymaga spełnienia \textbf{wszystkich} klauzul.
 
-\begin{enumerate}
-    \item otrzymujemy przykładowe wartościowanie
-    \item negujemy to wartościowanie
-    \item tworzymy z tych literaów nową klauzulę 
-    \item dodajemy nową klauzulę do formuły pierwotnej
-    \item ponownie uruchomiamy SAT-solver
-\end{enumerate}
+Większość SAT-solverów zwraca nie tylko informację o spełnialności, ale też przykładowe wartościowanie, jeśli formuła była spełnialna, lub minimalny zbiór niespełnialnych klauzul, jeśli formuła była niespełnialna.
 
-Żeby znaleźć wszystkie wartościowania powtarzamy powyższe kroki dopóki SAT-solver nie zwróci UNSAT.
+SAT-solvery mają wiele udanych zastosowań w różnych dziedzinach, takich jak np. sztuczna inteligencja, automatyzacja projektowania elektronicznego (ang. Electronic Design Automation), analiza programów.
 
-Since the introduction of algorithms for SAT in the 1960s, modern SAT solvers have grown into complex software artifacts involving a large number of heuristics and program optimizations to work efficiently.
+Istnieją różne rodzaje SAT-solverów, które rozwiązują inne odmiany problemu spełnialności formuł logicznych: 
 
-SAT-solvery są szeroko stosowane w różnych dziedzinach: sztucznej inteligencji, kryptografii, problemach optymalizacji.
+\begin{itemize}
+    \item MAX-SAT - szuka maksymalnej liczby klauzul, które mogą być spełnione, tzn. zadajemy pytanie ile maksumalnie klauzul z tej formuły dadzą formułę spełnialną jeśli połączymy je razem.
+    \item Częściowy MAX-SAT (ang. Partial MAX-SAT) - podczas gdy klasyczny problem SAT wymaga spełnienia wszystkich klauzul, PM-SAT jest rozluźniony spełnienia tego wymogu poprzez oznaczenie niektórych klauzul jako miękkie (ang. soft), a innych jako twarde (ang. hard). Celem jest znalezienie wartościowania, które spełnia wszystkie klauzule twarde i maksymalizuje liczbę spełnionych klauzul miękkich.
 
-The success of SAT-solvers has also led to the development of specialized variants and extensions. Some examples include weighted and partial SAT-solvers, which handle optimization variants of the problem, and incremental SAT-solvers, which efficiently solve related SAT instances by leveraging previously learned information.
-
-Their ability to handle large and complex problem instances has made them indispensable in various domains.
+\end{itemize}
 
 \section{Format DIMACS CNF}
 
-DIMACS CNF to format tekstowy reprezentujący formułę w koniunkcyjnej postaci normalnej. Pliki z formułami mogą być w dowolnym formacie tekstowym, ale najczęściej stosują się *.cnf lub *.txt. Żeby sukcesywnie zakodować formułę do tego formatu trzeba pilnować kilka reguł: 
+DIMACS CNF to format tekstowy reprezentujący formułę w koniunkcyjnej postaci normalnej. Pliki z formułami mogą być w dowolnym formacie tekstowym, ale najczęściej stosują się *.cnf lub *.txt. 
+
+Reguły których trzeba pilnować, żeby poprawnie stworzyć plik z formułą: 
 
 \begin{enumerate}
-    \item linie zaczynające się od znaku \textit{c} przedstawiają komentarze
-    \item linia zaczynająca się od znaku \textit{p} jest definicją formuły i wygląda następująco: \textit{p cnf l k}. Gdzie \textit{l} i \textit{k} są liczbami dodatnimi. \textit{l} reprezentuje liczbę zmiennych formuły, a \textit{k} reprezentuję liczbę klauzul formuły.
-    \item klauzule są umieszczane dokładnie po definicji formuły. Każda klauzula jest zakodowana jako sekwencja liczb dziesiętnych odseparowanymi spacjami.
-    \item każda linia zawiera dokładnie jedną klauzulę i ma kończyć się symbolem 0.
-    \item zostawianie pustych linii w formule nie jest dozwolone
+    \item Linie zaczynające się od znaku \textit{c} przedstawiają komentarze.
+    \item Linia zaczynająca się od znaku \textit{p} jest definicją formuły i wygląda następująco: \textit{p cnf l k}. Gdzie \textit{l} i \textit{k} są liczbami dodatnimi, gdzie \textit{l} reprezentuje liczbę zmiennych formuły, a \textit{k} reprezentuję liczbę klauzul.
+    \item Klauzule są umieszczane dokładnie po definicji formuły. Każda klauzula jest zakodowana jako sekwencja liczb dziesiętnych odseparowanymi spacjami.
+    \item Każda linia zawiera dokładnie jedną klauzulę i ma kończyć się symbolem 0.
+    \item Zostawianie pustych linii w formule nie jest dozwolone.
 \end{enumerate}
 Niepilnowanie tych reguł może doprowadzić do błędnych wyników lub w ogóle do unieruchomienia SAT-solvera.
 
@@ -144,11 +138,13 @@ może być zakodowana w DIMACS CNF jako:
 
 \section{Cel i zakres pracy}
 
-Celem pracy jest stworzenie wygodnego, atrakcyjnego i dostępnego dla wszystkich interfejsu graficznego nawet dla takiego barzdo specyficznego i skomplikowanego programu jak SAT-solver. Dostępność zapewnijmy tworząc aplikację webową dlatego, że nie wymaga od użytkownika żadnych nipotrzebnych instalacji, działa prawie wszędzie i \textit{out of the box}, potrzebny jest tylko internet. Wygodność zapewnijmy przemyślonym interfejsem, który będzie mówił sam za siebie i w razie problemów pomagał użytkownikowi w ich rozwiązaniu za pomocą odpowiednich komunikatów i sugestii. W pracy zostanie omówniony proces projektu, oraz implementacji niektórych, najbardziej interesujących części aplikacji. Frontend będzie stworzony za pomocą biblioteki \textbf{React}, a backend za pomocą biblioteki \textbf{FastAPI}, z zainstalowanej na nim biblioteki \textbf{PySAT}, która daję możliwość korzystać z wielu zaimplementowanych SAT-solverów. 
+Celem pracy jest stworzenie wygodnego i dostępnego dla wszystkich interfejsu graficznego dla oryginalnego SAT-solvera. Dostępność zapewnijmy tworząc aplikację webową dlatego, że nie wymaga od użytkownika żadnych nipotrzebnych instalacji, działa prawie wszędzie i dla uruchomienia potrzebny jest tylko komputer i internet. Wygodność zapewnijmy przemyślonym interfejsem, który będzie w razie problemów pomagał użytkownikowi w ich rozwiązaniu za pomocą odpowiednich komunikatów i sugestii. W pracy zostanie omówniony proces projektowania interfejsu oraz szczegóły implementacji niektórych, najbardziej interesujących części aplikacji. 
+
+Frontend będzie stworzony za pomocą biblioteki \textbf{React}, a backend za pomocą frameworku \textbf{FastAPI}. Na backendzie wykorzystamy pakiet \textbf{PySAT}, który daję możliwość korzystania z wielu zaimplementowanych SAT-solverów. Komunikację pomiędzy backendem a frontendem zapewnijmy poprzez HTTP zapytania.
 
 \chapter{Projekt}
 
-\section{Analiza wymagań / Definicja funkcjonalności}
+\section{Definicja funkcjonalności}
 
 Wygląd aplikacji mocno zależy od tego, jak zdefiniujemy funkcjonalności, więc:  
 
@@ -181,7 +177,17 @@ Wygląd aplikacji mocno zależy od tego, jak zdefiniujemy funkcjonalności, wię
 
 \lipsum[3]
 
-\section{Wybór narzędzi}
+\section{Architektura aplikacji}
+
+\lipsum[1]
+
+\lipsum[2]
+
+\lipsum[3]
+
+\chapter{Implementacja}
+
+\section{Narzędzia}
 
 \subsection{PySAT}
 
@@ -207,16 +213,6 @@ Wygląd aplikacji mocno zależy od tego, jak zdefiniujemy funkcjonalności, wię
 
 \lipsum[3]
 
-\section{Architektura aplikacji}
-
-\lipsum[1]
-
-\lipsum[2]
-
-\lipsum[3]
-
-\chapter{Implementacja}
-
 \section{Implementaja edytora}
 
 \lipsum[1]
@@ -226,22 +222,6 @@ Wygląd aplikacji mocno zależy od tego, jak zdefiniujemy funkcjonalności, wię
 \lipsum[3]
 
 \section{Implementacja sprawdzarki}
-
-\lipsum[1]
-
-\lipsum[2]
-
-\lipsum[3]
-
-\section{implementacja  części 3}
-
-\lipsum[1]
-
-\lipsum[2]
-
-\lipsum[3]
-
-\section{implementacja  części 4}
 
 \lipsum[1]
 
