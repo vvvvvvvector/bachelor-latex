@@ -1,5 +1,8 @@
 \documentclass[a4paper,12pt,oneside]{book}
 
+\usepackage[pdftex]{graphicx}
+\graphicspath{ {./images/} }
+
 \usepackage{biblatex}
 \addbibresource{bibliography.bib} 
 
@@ -171,11 +174,137 @@ Wygląd aplikacji mocno zależy od tego, jak zdefiniujemy funkcjonalności, wię
 
 \section{Prototypowanie interfejsu}
 
+W danej sekcji komponent po komponencie stworzymy prototyp graficznego interfejsu dla SAT-solvera oraz rozważymy przyjęte decyzji wizualne.
+
+\subsection{Edytor plików w formacie DIMACS CNF}
+
+Korzytając z SAT-solverów jesteśmy zmuszeni korzystać z plików w formacie DIMACS CNF, więc przydałoby się mieć edytor do takich plików. W podstawowej wersji wygląda następująco:
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=14.30cm]{1}
+    \caption{Edytor podstawowy}
+    \label{fig:1}
+\end{figure}
+
+\noindent W środku większą częsć zajmuje obszar w którym będziemy modyfikować naszą formułę, na razie istnieje możliwość tylko wklejenia jej do edytora. Po prawej stronie mamy scroll który będzie pomagał nam przemieszczać się po formułach z dużą liczbą klauzul. Po lewej stronie mamy słupek z informacją o numerach linii, w przyszłości nam się to przyda dla wykrycia i wskazywania błędów.
+
+Nie za bardzo wygodne jest wklejanie zawartości pliku, więc damy użytkownikowi możliwość do załadowania pliku z formułą oraz możliwość do zapisania pliku z zmodyfikowaną formułą:
+
+\newpage
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=14.30cm]{2}
+    \caption{Edytor z możliwością załadowania i zapisania formuły}
+    \label{fig:2}
+\end{figure}
+
+\noindent Po prawej stronie dodaliśmy obszar który będzie pomagał nam zarządzać edytorem, obecnie znajdują się tu dwa przyciski: nr. 1 daje możliwość wybrać i załadować plik z formułą, a nr.2 daje możliwość zapisać plik i dać mu nazwę.
+
+W formule, przez przypadek, mogą pojawić się zduplikowane klauzule, chociaż to nie za bardzo wpływa na wydajność i szybkość działania SAT-solvera, damy użytkownikowi możliwość usunięcia takich klauzul:
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=14.30cm]{3}
+    \caption{Edytor z możliwością usunięcia zduplikowanych klauzul}
+    \label{fig:3}
+\end{figure}
+
+Z obrazów przycisków z obszaru do zarządzania edytorem może nie być jasne, co one robią, więć dodana jest możliwość zobaczyć w postaci tekstowej tę informację. Przy najechaniu myszką na każdy z przycisków pod nimi będzie pojawiała się podpowiedź (ang. tooltip) z tekstem. Na przykład pod przyciskiem nr.1 pojawi się komunikat "Upload formula".
+
+\newpage
+
+\subsection{Wykrycie, wskazywanie i naprawienie błędów}
+
+Dla poprawnego i przewidywanego działania SAT-solvera konieczne jest poprawne stworzenie pliku z formułą w formacie DIMACS CNF. Jako twórcy interfejsu graficznego mamy pomoc użytkownikowi poradzić z wykryciem, wskazywaniem i naprawieniem błędów w razie ich wystąpienia. 
+
+Kiedy formuła w edytorze będzie się zmieniała, będzie wywoływana funkcja wykrywająca błędy. Wykryte błędy mamy w jakiś sposób wyświetlić. Propnujemy podświetlenie odpowiednich linijek. Tak to będzie wyglądało: 
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=14.30cm]{4}
+    \caption{Edytor wraz z tabelą z błędami}
+    \label{fig:4}
+\end{figure}
+
+\noindent Widzimy jeszcze, że w obszar do zarządzania formułą został dodany nowy przycisk pod numerem 4. Będzie on odpowiadał za automatyczne poprawienie błędów. Kiedy użytkownik nacisnie na ten przycisk, zanim poprawienie się zacznie, będzie wyświetlony komunikat mówiący o bezzwrotności działań użytkownika i prośbą o potwierdzenie chęci zrobienia popraw. Dodatkowo w komunikacie będzie napisano, że: 
+
+\begin{itemize}
+    \item puste linie, komentarze oraz uszkodzone klauzule zostaną usunięte
+    \item liczba zmiennych i klauzul będzie przeliczona
+\end{itemize}
+
+W tym momencie, jeśli użytkownik będzie miał błędy w formule, będzie je dobrze widział, ale ma je też naprawić. Żeby to teraz zrobić, ma z góry wiedzieć w czym jest problem. Ułatwmy zrozumienie dodaniem odpowiednich podpowiedzi przy najechaniu myszką na czerwoną linię. Na rysunku 2.5 pojawiła się podpowiedź, gdzie w pierwszej linijce znajduje się treść uszkodzonej linii, w drugiej opis błędu, a w trzeciej propozycja do naprawienia w postaci przycisku. W tym przykładzie widzimy, że zapropanowano dodnie zera na końcu linii.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=14.30cm]{5}
+    \caption{Edytor wyświetlający podpowiedź przy najechaniu myszką}
+    \label{fig:5}
+\end{figure}
+
+\newpage
+
+Zostały nam jeszcze dwa problemy do rozwiązania. Po pierwsze, w razie błędów nie widzimy od razu ile ich jest. Po drugie, ze względu na to, że pliki z formułami mogą zawierać dużo klauzul, a zatem potencjalnie dużo błędów, nie mamy sposóbu na wyświetlanie wszystkich blędów naraz w jednym miejscu. W drugim przypadku przydało by się też zostawić możliwość szybkiej naprawy. 
+
+Te dwa problemy można rozwiązać wprowadzając kolejny komponent: 
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=14.30cm]{6}
+    \caption{Tabela z wykrytymi błędami}
+    \label{fig:6}
+\end{figure}
+
+\noindent Znajduję się od razu pod edytorem. Ma dwa stany: otwarty i zamknięty. Domyślnie ma stan zamknięty. Na górze widzimy nagłówek w którym jest napisano ile mamy błędów w formule. Klikająć na nagłówek zmieniamy stan otwarcia. Tabela ma trzy kolumny: w pierwszej znajduje się opis błędu, w drugie uszkodzona linia, a w trzeciej znajdują się przyciski, dzięki którym można szybko naprawić błąd. Błędy w tabeli są sortowane rosnąco w zależności od indexu linii wystąpienie.
+
+\subsection{Podstawowe funkcje SAT-solvera}
+
+Kiedy umiemy już wykrywać i naprawiać błędy, co zapewnia nam bezpieczne i przewidywane działania SAT-solvera, możemy dodać przyciski kontrolujące i dać użytkownikowi możliwość do uruchomienia go:
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=14.30cm]{7}
+    \caption{Edytor ze wszystkimi przyciskami}
+    \label{fig:7}
+\end{figure}
+
+Przycisk nr.6 pozwala dowiedzieć czy formuła jest lub nie jest spełnialna. Jeśli jest spełnialna zwracane jest pierwsze wartościowanie.
+
+Przycisk nr.7 pozwala znaleźć następne wartościowanie, jeśli takie istnieje. Jest nieaktywny jeśli formula jest niespełnialna.
+
+Przycisk nr.5 uruchamia wyszukiwanie wszystkich wartościowań. Wyszukiwanie można będzie przerwać w dowolnej chwili kiedy będzie znalezione pierwsze wartościowanie.
+
+Przycisk nr.8 pozwala wybrać dowolny z dostępnych w pakiecie PySAT SAT-solver.
+
+Jeśli formuła w edytorze zawiera błędy - uruchomienie SAT-solvera nie jest dozwolone. Wszystkie przyciski oprócz nr.8 będą nieaktywne.
+
+\subsection{Wyświetlanie wartościowań}
+
+Mamy poradzić z problemem wyświetalania wartościowań dla formuł zawierających dużą liczbę zmiennych. Trudno będzie wyświetlić takie wartościowanie wprost w słupku lub w jednej linii. Doprowadzi to do przekroczenia granic ekranu dowolnego rozmiaru wzdłuż osi X lub Y. 
+
+\lipsum[2]
+
+\lipsum[3]
+
+\subsection{Formuła w postaci CNF}
+
 \lipsum[1]
 
 \lipsum[2]
 
 \lipsum[3]
+
+
+\subsection{Łączenie formuł}
+
+\lipsum[1]
+
+\lipsum[2]
+
+\lipsum[3]
+
 
 \section{Architektura aplikacji}
 
