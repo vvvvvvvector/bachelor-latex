@@ -90,8 +90,6 @@ jest spełnialna, dlatego, że istnieje wartościowanie które ją spełnia, np.
     $x_1 = false, x_2 = false, x_3 = false$
 \end{center}
 
-Problem SAT jest pierwszym problemem którego NP-zupełność wykazano, to jest \textbf{Twierdzenie Cooka-Levina}.
-
 \section{SAT-solvery}
 
 \textbf{SAT-solver} jest programem mający na celu rozwiązanie problemu spełnialności. Na wejściu program przyjmuje formulę w postaci CNF, a na wyjściu zwraca odpowiedź, czy podana formuła jest lub nie jest spełnialna. Oryginalny SAT-solver wymaga spełnienia \textbf{wszystkich} klauzul.
@@ -149,36 +147,71 @@ Frontend będzie stworzony za pomocą biblioteki \textbf{React}, a backend za po
 
 \section{Definicja funkcjonalności}
 
-Wygląd aplikacji mocno zależy od tego, jak zdefiniujemy funkcjonalności, więc:  
+Wygląd interfejsu graficznego mocno zależy od tego, jak zdefiniujemy funkcjonalności, więc zanim zacznimy, mamy je ściślie zdefiniować.  
+
+Mamy mieć edytor plików DIMACS CNF który będzie pomagał nam wykrywać błędy w formułach. Można wyróźnić wystąpinie następnych błędów:
 
 \begin{itemize}
-    \item parsowanie formuły z pliku w formacie DIMACS CNF do CNF
-    \item możliwość edycji formuły w postaci CNF
-    \item wyświetlanie w wygodny sposób formuł w postaci CNF (dzielenie dużych formuł na strony; wyświetlanie tylko odpowiedniej ilości klauzul na jednej stronie)
-    \item formuła w postaci CNF dostaje możliwość edycji, czyli można: modyfikować, usuwać, dodawać klauzule
-    \item kiedy zmienia się formuła w postaci CNF, zmienia się jednocześnie formuła w DIMACS CNF w edytorze
-    \item wczytywanie formuł z pliku
-    \item zapisywanie formuły w formacie DIMACS CNF do pliku
-    \item wyświetlanie w wygodny sposób dużych wartościowań spełniających formułę
-    \item poprawianie automatyczne formuły (na końcach linii są dopisywane zera, liczby zmiennych i klauzul w nagłówku są poprawiane na odpowiednie, puste linie są usuwane, niepoprawne klauzule są usuwane)
-    \item wyświetlanie ilości znalezionych rozwiązań
-    \item zapisywanie pojedynczego wartościowania w postaci ``binarnej''
-    \item możliwość znalezienia i wyświetlenia pojedynczego wartościowania spełniającego formułę
+    \item \textit{Kod błędu 0}: Nie można zostawiać pustych linii
+    \item \textit{Kod błędu 1}: Definicja formuły może być niepoprawna
+    \item \textit{Kod błędu 2}: Każda klauzula ma kończyć się zerem
+    \item \textit{Kod błędu 3}: Klauzula może być niepoprawna
+    \item \textit{Kod błędu 4}: W pliku nie może być więcej niż jedna definicji formuły
+    \item \textit{Kod błędu 5}: Zmienna w klauzuli może być nie w zakresie zdefiniowanym w definicji
+\end{itemize}
+
+\noindent Dla każdego z wymienionych błędów mamy dawać użytkownikowi indywidualne sugestie do poprawienia:
+
+\begin{itemize}
+    \item \textit{Kod błędu 0}: usuwanie lub edycja linijki
+    \item \textit{Kod błędu 1}: edycja linijki z definicją
+    \item \textit{Kod błędu 2}: dopisywane zera na końcu linijki
+    \item \textit{Kod błędu 3}: usuwanie lub edycja linijki z klauzulą
+    \item \textit{Kod błędu 4}: wymiana istniejącej lub usuwanie linijki z definicją
+    \item \textit{Kod błędu 5}: edycja linijki z klauzulą
+\end{itemize}
+
+Błędów może być dużo, więc damy też możliwość do automatycznego poprawiania formuły. Przy tym w formule następują następne zmiany:
+
+\begin{enumerate}
+    \item Na końcach linii są dopisywane zera.
+    \item Liczby zmiennych i klauzul w nagłówku są poprawiane na odpowiednie.
+    \item Puste linie i niepoprawne klauzule są usuwane.
+    \item Komentarze są usuwane.
+\end{enumerate}
+
+\noindent Ze względu na to, że formuła może być nieostrzożnie uszkodzona, użytkownik będzie poproszony o potwierzdzenie chęci zrobienia automatycznego poprawienia.
+
+Ma istnieć możliwość do wczytania formuły w postaci DIMACS CNF z pliku oraz zapisywania do pliku.
+
+Formuła z edytora ma być parsowana do zwykłej postaci CNF. W tej postaci formułę można będzie modyfikować, czyli usuwać, zmieniać lub dodawać klauzule. Dzięki temu użytkownik dostanie możliwość jednoczesnej edycji formuły w postaci CNF i DIMACS, może zanim wybrać wygodniejszy dla siebie sposób pracy z programem.
+
+Korzystając z SAT-solvera użytkownik ma możliwość:
+
+\begin{itemize}
+    \item znalezienia i wyświetlenia pojedynczego wartościowania spełniającego formułę
     \item możliwość znalezienia i wyświetlenia wszystkich wartościowań spełniających
-    \item usuwanie zduplikowanych klauzul z formuły
+    \item wybrać SAT-solver z którego chce korzystać
+\end{itemize}
+
+Reszta:
+
+\begin{itemize}
+    \item wyświetlanie ilości znalezionych rozwiązań
+    \item zapisywanie pojedynczego wartościowania w postaci czytelnej dla komputera, czyli zero-jedynkowo
+    \item możliwość usuwania zduplikowanych klauzul z formuły
     \item możliwość lączenia dwóch formuł w jedną, co z kolei daje możliwość lączenia dowolnej ilości formuł
-    \item edytor DIMACSów: sprawdzanie poprawności edytowanych plików
-    \item edytor DIMACSów: wszkazuwanie błędów. Kody błędów z opisem 0 -> ('no empty lines allowed'), 1 -> ('invalid formula definition'), 2 -> ('clause must end with 0'), 3 -> ('invalid clause'), 4 -> (`formula was already defined in line formulaDefinitionRow.current), 5 -> (`Wrong variable value: varError => range[1..rangeInDef]`)
-    \item edytor DIMACSów: edytor, w razie błedów w formule, daje użytkownikowi indywidualne do każdego błędu sugestie do poprawienia
 \end{itemize}
 
 \section{Prototypowanie interfejsu}
 
-W danej sekcji komponent po komponencie stworzymy prototyp graficznego interfejsu dla SAT-solvera oraz rozważymy przyjęte decyzji wizualne.
+W zakresie prototypowania komponent po komponencie stworzymy prototyp graficznego interfejsu SAT-solvera oraz rozważymy przyjęte decyzji projektowe.
 
 \subsection{Edytor plików w formacie DIMACS CNF}
 
-Korzytając z SAT-solverów jesteśmy zmuszeni korzystać z plików w formacie DIMACS CNF, więc przydałoby się mieć edytor do takich plików. W podstawowej wersji wygląda następująco:
+Korzytając z SAT-solverów jesteśmy zmuszeni korzystać z plików w formacie DIMACS CNF, więc przydałoby się mieć edytor do takich plików. W podstawowej wersji będzie wyglądał następująco:
+
+\newpage
 
 \begin{figure}[ht]
     \centering
@@ -248,7 +281,7 @@ W tym momencie, jeśli użytkownik będzie miał błędy w formule, będzie je d
 
 Zostały nam jeszcze dwa problemy do rozwiązania. Po pierwsze, w razie błędów nie widzimy od razu ile ich jest. Po drugie, ze względu na to, że pliki z formułami mogą zawierać dużo klauzul, a zatem potencjalnie dużo błędów, nie mamy sposóbu na wyświetlanie wszystkich blędów naraz w jednym miejscu. W drugim przypadku przydało by się też zostawić możliwość szybkiej naprawy. 
 
-Te dwa problemy można rozwiązać wprowadzając kolejny komponent: 
+Te dwa problemy można rozwiązać wprowadzając kolejny komponent, który będzie znajdował się od razu pod edytorem: 
 
 \begin{figure}[ht]
     \centering
@@ -257,7 +290,7 @@ Te dwa problemy można rozwiązać wprowadzając kolejny komponent:
     \label{fig:6}
 \end{figure}
 
-\noindent Znajduję się od razu pod edytorem. Ma dwa stany: otwarty i zamknięty. Domyślnie ma stan zamknięty. Na górze widzimy nagłówek w którym jest napisano ile mamy błędów w formule. Klikająć na nagłówek zmieniamy stan otwarcia. Tabela ma trzy kolumny: w pierwszej znajduje się opis błędu, w drugie uszkodzona linia, a w trzeciej znajdują się przyciski, dzięki którym można szybko naprawić błąd. Błędy w tabeli są sortowane rosnąco w zależności od indexu linii wystąpienie.
+\noindent Jest ukryty, kiedy formuła nie zawiera błędów. Ma dwa stany: otwarty i zamknięty. Domyślnie ma stan zamknięty. Na górze widzimy nagłówek w którym jest napisano ile mamy błędów w formule. Klikająć na nagłówek zmieniamy stan otwarcia. Tabela ma trzy kolumny: w pierwszej znajduje się opis błędu, w drugie uszkodzona linia, a w trzeciej znajdują się przyciski, dzięki którym można szybko naprawić błąd. Błędy w tabeli są sortowane rosnąco w zależności od indexu linii wystąpienie.
 
 \subsection{Podstawowe funkcje SAT-solvera}
 
@@ -274,37 +307,60 @@ Przycisk nr.6 pozwala dowiedzieć czy formuła jest lub nie jest spełnialna. Je
 
 Przycisk nr.7 pozwala znaleźć następne wartościowanie, jeśli takie istnieje. Jest nieaktywny jeśli formula jest niespełnialna.
 
-Przycisk nr.5 uruchamia wyszukiwanie wszystkich wartościowań. Wyszukiwanie można będzie przerwać w dowolnej chwili kiedy będzie znalezione pierwsze wartościowanie.
+Przycisk nr.5 uruchamia wyszukiwanie wszystkich wartościowań. Wyszukiwanie można będzie przerwać w dowolnej chwili kiedy będzie znalezione pierwsze wartościowanie. Po przerwaniu wyszukiwanie można ponownie zacząć od momentu skończenia, w tym przypadku tekstem przycisku będzie nie "FIND ALL", a "FIND OTHER SOLUTIONS".
 
 Przycisk nr.8 pozwala wybrać dowolny z dostępnych w pakiecie PySAT SAT-solver.
 
-Jeśli formuła w edytorze zawiera błędy - uruchomienie SAT-solvera nie jest dozwolone. Wszystkie przyciski oprócz nr.8 będą nieaktywne.
+Jeśli formuła w edytorze zawiera błędy - uruchomienie SAT-solvera nie jest dozwolone. Wszystkie wymienione przyciski oprócz nr.8 będą nieaktywne.
 
 \subsection{Wyświetlanie wartościowań}
 
-Mamy poradzić z problemem wyświetalania wartościowań dla formuł zawierających dużą liczbę zmiennych. Trudno będzie wyświetlić takie wartościowanie wprost w słupku lub w jednej linii. Doprowadzi to do przekroczenia granic ekranu dowolnego rozmiaru wzdłuż osi X lub Y. 
+Chcemy, żeby komponent pozwalał w jasny sposób widzeć jakie wartości zostały przepisane zmiennym formuły.
 
-\lipsum[2]
+Mamy poradzić z problemem wyświetalania wartościowań dla formuł zawierających dużą liczbę zmiennych. Trudno będzie wyświetlić takie wartościowanie wprost w słupku lub w jednej linii, doprowadzi to do przekroczenia granic ekranu dowolnego rozmiaru wzdłuż osi X lub Y. 
 
-\lipsum[3]
+%\newpage
 
 \subsection{Formuła w postaci CNF}
 
-\lipsum[1]
+Komponent, który stworzymy, będzie dawał możliwość zoboczenia i edytowania formuły inaczej, niż w edytorze DIMACS, a mianowicie w zwykłej postaci CNF. Ważne tu jest umieszczenie wszystkiego w wygodny sposób dlatego, że formuły często zawierają dużo klauzul i to też może zająć dużo miejsa na ekranie, a im więcej umieszczamy elementów na ekranie, tym wolnejszy staje się rendering tego wszystkiego w przeglądarce. Wolne działanie aplikacji może źle wpłynąć na doświadczenie użytkownika przy korzystaniu z niej, czemu chcemy zapobiec.
 
-\lipsum[2]
+Proponujemy stworzenie następnego komponentu:
 
-\lipsum[3]
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=14.30cm]{9}
+    \caption{Komponent pozwalający pracować z formułą w postaci CNF}
+    \label{fig:9}
+\end{figure}
 
+\noindent To wszytko to jest ten sam komponent, ale na górze znajduje się w stanie, kiedy formuła jeszcze nie została dodana. Klikając na nagółwek komponentu możemy go zamknąć lub otworzyć. Domyślnie znajduje się w stanie otwartym.
+
+Klikając na plus możemy ręcznie dodawać klauzule do formuły. Pojawi się do tego odpowiednie pole z miejscem do stworzenia wraz z instrukcją, w której jest wytłumaczone jak to prawidłowo zrobić.
+
+W stanie nr.2, nad drugą klauzulą widzimy przyciski pozwalające ją modyfikować. Takie przyciski będą pojawiać się nad każdą klauzulą przy najechaniu na nią myszką. Przy nacisnięciu na śmietnik użytkownik zostanie zapytany, czy napewno chce usunąć klauzule. W razie pozytywej odpowiedzi klauzula będzie usunięta. Przy nacisnięciu na długopis, użytkownik dostaje możliwość do modyfikacji zawartości klauzuli. Kiedy modyfikowanie jest skończone, naciska na przysick "Zapisz", który stanie się dostępny w interfejsie graficznym lub "Enter" na klawiaturze.
+
+Zostało nam jeszcze poradzić z obsługą formuł zawierających dużo liczbę klauzul. Zrobimy to jak w przypadku dużej ilości wartościowań formuły, czyli rozdzielimy dane na strony. Ilość klauzul wyświetlanych na jednej strone będzie stała i znajdowała się w kodzie programu, użytkownik nie będzie w stanie jej zmieniać. Domyślnie na jednej stronie będziemy pokazywali 115 klauzul. Takie rozdzielenie dobrze wpłynie na wydajność aplikacji dlatego, że przeglądarka nie będzie miała renderować całą formułę naraz, a tylko odpowiednią jej część. Wyglądać to będzie następująco:
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=14.30cm]{10}
+    \caption{Duża formuła rozdzielona na kilka stron}
+    \label{fig:10}
+\end{figure}
 
 \subsection{Łączenie formuł}
 
-\lipsum[1]
+Został nam do zaprojektowania ostatni komponent, taki, który będzie pozwalał łączyć formuły w formacie DIMACS CNF, zaprojektujemy go w następny sposób: 
 
-\lipsum[2]
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=14.30cm]{11}
+    \caption{Komponent pozwalający łączyć formuły}
+    \label{fig:11}
+\end{figure}
 
-\lipsum[3]
-
+\noindent Widzimy tu najpierw dwa edytory i dwa przyciski. Edytory nie mają możliwości sprawdzenia błędów. Do edytorów można wkleić lub załadować formułę z pliku, klikając na przycik nr.1 lub nr.2. Kiedy dwie formuły zostały załadowane, użytkownik może nacisnąć przycisk "LINK FORMULAS". Jeśli nie wystąpiło błędów podczas łączenia, pojawi się odpowiedni komunikat, że formuły zostały pomyślnie połączone oraz odblokuje się przycisk "PASTE RESULT IN THE EDITOR". Kiedy użytkownik kliknie na przycsik nr.4, to zostanie przekierowany na stronę z edytorem w który już będzie wklejony rezultat łączenia.
 
 \section{Architektura aplikacji}
 
@@ -320,6 +376,8 @@ Mamy poradzić z problemem wyświetalania wartościowań dla formuł zawierając
 
 \subsection{PySAT}
 
+Darmowa i otwarta biblioteka przeznaczona dla języka Python.
+
 \lipsum[1]
 
 \lipsum[2]
@@ -328,6 +386,8 @@ Mamy poradzić z problemem wyświetalania wartościowań dla formuł zawierając
 
 \subsection{FastAPI}
 
+Darmowa i otwarta biblioteka przeznaczona dla języka Python.
+
 \lipsum[1]
 
 \lipsum[2]
@@ -335,6 +395,8 @@ Mamy poradzić z problemem wyświetalania wartościowań dla formuł zawierając
 \lipsum[3]
 
 \subsection{React}
+
+Darmowa i otwarta biblioteka przeznaczona dla języka JavaScript.
 
 \lipsum[1]
 
@@ -375,8 +437,10 @@ Ja chcę, żeby mój program stał się początkiem tworzenia interfejsów grafi
 
 Będę \cite{einstein} zawsze otwarty na takie propozycję na GitHubie. Chciałbym, żeby \cite{dirac} studenci naszej uczelni w \cite{dirac} swoich pracach licencjackich lub \cite{knuthwebsite} nawet magisterskich \cite{knuth-fa} kontynuowali rozwijanie i polepszenie mojego programu.
 
-\printbibliography[title=Bibliografia]
+\listoffigures{}
+\addcontentsline{toc}{chapter}{Spis rysunków}
 
+\printbibliography[title=Bibliografia]
 \addcontentsline{toc}{chapter}{Bibliografia}
 
 \end{document}
