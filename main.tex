@@ -291,7 +291,7 @@ Te dwa problemy można rozwiązać wprowadzając kolejny komponent, który będz
 
 \noindent Jest ukryty, kiedy formuła nie zawiera błędów. Ma dwa stany: otwarty i zamknięty. Domyślnie ma stan zamknięty. Na górze widzimy nagłówek w którym jest napisano ile mamy błędów w formule. Klikająć na nagłówek zmieniamy stan otwarcia. Tabela ma trzy kolumny: w pierwszej znajduje się opis błędu, w drugie uszkodzona linia, a w trzeciej znajdują się przyciski, dzięki którym można szybko naprawić błąd. Błędy w tabeli są sortowane rosnąco w zależności od indexu linii wystąpienie.
 
-\subsection{Podstawowe funkcje SAT-solvera}
+\subsection{Podstawowe funkcje}
 
 Kiedy umiemy już wykrywać i naprawiać błędy, co zapewnia nam bezpieczne i przewidywane działania SAT-solvera, możemy dodać przyciski kontrolujące i dać użytkownikowi możliwość do uruchomienia go:
 
@@ -312,25 +312,58 @@ Przycisk nr.8 pozwala wybrać dowolny z dostępnych w pakiecie PySAT SAT-solver.
 
 Jeśli formuła w edytorze zawiera błędy - uruchomienie SAT-solvera nie jest dozwolone. Wszystkie wymienione przyciski oprócz nr.8 będą nieaktywne.
 
+\newpage
+
 \subsection{Wyświetlanie wartościowań}
 
-Chcemy, żeby komponent pozwalał w jasny sposób widzeć jakie wartości zostały przepisane zmiennym formuły.
+Chcemy, żeby komponent pozwalał w jasny sposób widzeć jakie wartości zostały przepisane zmiennym formuły. 
 
-Mamy poradzić z problemem wyświetalania wartościowań dla formuł zawierających dużą liczbę zmiennych. Trudno będzie wyświetlić takie wartościowanie wprost w słupku lub w jednej linii, doprowadzi to do przekroczenia granic ekranu dowolnego rozmiaru wzdłuż osi X lub Y. 
+Np. formuła ma 1000 zmiennych, jedno warościowanie to 1000 komponentów (załóżmy, że jeden komponent to jeden element) i rozwiązań np. jest 30, 30 * 1000 = 30000 elementów na stronie, co może ją znacznie obciążyć jeśli będziemy wyświetlać całość naraz. Z tego powody będziemy wyświetląc całe wartościowanie tylko na życzenie użytkownika, a w preview pokazywać tylko małą ilość wartości przepisanych zmiennym, np. pierwsze pięć dla x1, x2, x3, x4, x5. Dodatkowo nie będziemy wyświetlać wszysktie komponenty z wartościowaniami na jednej stronie, a podzielimy je na kilka, np. na jednej stronie będziemy wyświetlać 8 wartościowań. W końcu komponent z wartościowaniami będzie dawał nam 5 * 8 = 40 stałą ilość dodatkowych elementów na stronie.
 
-%\newpage
+Mamy też poradzić z problemem wyświetalania wartościowań dla formuł zawierających dużą liczbę zmiennych. Trudno będzie wyświetlić takie wartościowanie wprost w słupku lub w jednej linii, doprowadzi to do przekroczenia granic ekranu dowolnego rozmiaru wzdłuż osi X lub Y. 
+
+W związku z powyższym proponujemy wieświetlenie rozwiązań w następujący sposób:
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=14.30cm]{8}
+    \caption{Komponent wyświetlający wartościowania}
+    \label{fig:8}
+\end{figure}
+
+Klikając na każde z warościowań będzie otwierało się okno pozwalające zobaczyć całe wartościowanie. Widzimy to na rysunku 2.9. Możemy przewijać i oglądać całe wartościowanie, możemy też skopiować go w takiej formie. Widzimy przycisk "Save in a binary form", który pozwala zapisać formułę w postaci zero-jedynkowej do pliku *.txt.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=14.30cm]{9}
+    \caption{Wyświetlenie całego wartościowania}
+    \label{fig:9}
+\end{figure}
+
+\newpage
+
+Dopóki użytkownik nie znajdzie co najmniej jedno wartościowanie będzie pokazywany stan komponentu, mówiący o braku rozwiązań: 
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=14.30cm]{10}
+    \caption{Stan komponentu mówiący o braku rozwiązań}
+    \label{fig:10}
+\end{figure}
+
+\newpage
 
 \subsection{Formuła w postaci CNF}
 
-Komponent, który stworzymy, będzie dawał możliwość zoboczenia i edytowania formuły inaczej, niż w edytorze DIMACS, a mianowicie w zwykłej postaci CNF. Ważne tu jest umieszczenie wszystkiego w wygodny sposób dlatego, że formuły często zawierają dużo klauzul i to też może zająć dużo miejsa na ekranie, a im więcej umieszczamy elementów na ekranie, tym wolnejszy staje się rendering tego wszystkiego w przeglądarce. Wolne działanie aplikacji może źle wpłynąć na doświadczenie użytkownika przy korzystaniu z niej, czemu chcemy zapobiec.
+Komponent, który stworzymy, będzie dawał możliwość zobaczenia i edytowania formuły inaczej, niż w edytorze DIMACS, a mianowicie w zwykłej postaci CNF. Ważne tu jest umieszczenie wszystkiego w wygodny sposób dlatego, że formuły często zawierają dużo klauzul i to może zająć dużo miejsa na ekranie, a im więcej umieszczamy elementów na ekranie, tym wolnejszy staje się rendering tego wszystkiego w przeglądarce. Wolne działanie aplikacji może źle wpłynąć na doświadczenie użytkownika przy korzystaniu z niej, czemu chcemy zapobiec.
 
 Proponujemy stworzenie następnego komponentu:
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=14.30cm]{9}
+    \includegraphics[width=14.30cm]{11}
     \caption{Komponent pozwalający pracować z formułą w postaci CNF}
-    \label{fig:9}
+    \label{fig:11}
 \end{figure}
 
 \noindent To wszytko to jest ten sam komponent, ale na górze znajduje się w stanie, kiedy formuła jeszcze nie została dodana. Klikając na nagółwek komponentu możemy go zamknąć lub otworzyć. Domyślnie znajduje się w stanie otwartym.
@@ -343,10 +376,12 @@ Zostało nam jeszcze poradzić z obsługą formuł zawierających dużo liczbę 
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=14.30cm]{10}
+    \includegraphics[width=14.30cm]{12}
     \caption{Duża formuła rozdzielona na kilka stron}
-    \label{fig:10}
+    \label{fig:12}
 \end{figure}
+
+\newpage
 
 \subsection{Łączenie formuł}
 
@@ -354,9 +389,9 @@ Został nam do zaprojektowania ostatni komponent, taki, który będzie pozwalał
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=14.30cm]{11}
+    \includegraphics[width=14.30cm]{13}
     \caption{Komponent pozwalający łączyć formuły}
-    \label{fig:11}
+    \label{fig:13}
 \end{figure}
 
 \noindent Widzimy tu najpierw dwa edytora i dwa przyciski. Edytory nie mają możliwości sprawdzenia błędów. Do edytorów można wkleić lub załadować formułę z pliku, klikając na przycik nr.1 lub nr.2. Kiedy dwie formuły zostały załadowane, użytkownik może nacisnąć przycisk "LINK FORMULAS". Jeśli nie wystąpiło błędów podczas łączenia, pojawi się odpowiedni komunikat, że formuły zostały pomyślnie połączone oraz odblokuje się przycisk "PASTE RESULT IN THE EDITOR". Kiedy użytkownik kliknie na przycsik nr.4, to zostanie przekierowany na stronę z edytorem w który już będzie wklejony rezultat łączenia.
