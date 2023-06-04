@@ -44,7 +44,7 @@
 \chapter*{Wstęp}
 \addcontentsline{toc}{chapter}{Wstęp}
 
- Graficzny interfejs użytkownika (ang. graphical user interface, \textbf{GUI}) jest typem interfejsu za pomocą którego użytkownik wchodzi w interakcję z komputerem, programem. Dobrze przemyślony, wygodny, niezawodny, pomagający użytkownikowi interfejs napewno poszerza grono użytkowników aplikacji, co może m.in dobrze wpłynąć na rozwój biznesu lub suksec twórcy. Wyobraźmy, na przykład, co by było gdyby systemy operacyjne nie miały interfejsów graficznych? Brak interfejsu bardzo podwyższa poziom przygotowania dla korzystania z takiej / takiego aplikacji / programu. Interfejsy, w większości, robią skomplikowane programy dostępnymi dla wielu ludzi. Niskopoziomowe staje się wysokopoziomowym. Interfejsy graficzne są bardzo ważną częścią każdej aplikacji. Często patrząc tylko na wizualny wygląd już nie chce z niej korzytać. To jest źle, dla niektórych użytkowników to może być bardzo krytyczne i oni pójdą szukać inne rozwiązania, szkoda, bo ze względu na funkcjonalność aplikacja może być bardzo bogata. Dlatego jest bardzo ważne dbać o to, żeby aplikacja była nie tylko funkcjonalna, ale i nie było lagów, była atrakcyjna, wygodna, dostępna.
+ Graficzny interfejs użytkownika (ang. graphical user interface, GUI) jest typem interfejsu za pomocą którego użytkownik wchodzi w interakcję z komputerem, programem. Alternatywą do interfejsów graficznych są interfejsy konsolowe (ang. command line interface, CLI). Wadą takiego sposobu korzystania z programu jest to, że mamy pamiętać komendy na pamięć i je ręcznie wpisywać. Z tego powodu, że to jest uciążliwe dla więkzości ludzi, stały się popularne interfejsy graficzne, które są bardzo ważną częścią każdej współczesnej aplikacji. Wyobraźmy, na przykład, co by było gdyby systemy operacyjne nie miały interfejsów graficznych? Brak interfejsu bardzo podwyższa poziom przygotowania dla korzystania z takiej aplikacji. Interfejsy, w większości, czynią skomplikowane programy dostępnymi i zrozumiałymi dla wielu ludzi, niskopoziomowe staje się wysokopoziomowym. Dobrze przemyślony, atrakcyjny, niezawodny, pomagający użytkownikowi interfejs napewno poszerza grono użytkowników programu, co może m.in dobrze wpłynąć na rozwój przedsiębiorstwa lub suksec twórcy. Dlatego jest bardzo ważne dbać o to, żeby aplikacja była nie tylko funkcjonalna, ale i jej interfejs graficzny nie miał opóźnień, był intuicyjny i porządnie wyglądał. 
 
 \chapter{Wprowadzenie}
 
@@ -139,7 +139,7 @@ może być zakodowana w DIMACS CNF jako:
 
 \section{Cel i zakres pracy}
 
-Celem pracy jest stworzenie wygodnego i dostępnego dla wszystkich interfejsu graficznego dla oryginalnego SAT-solvera. Dostępność zapewnijmy tworząc aplikację webową dlatego, że nie wymaga od użytkownika żadnych nipotrzebnych instalacji, działa prawie wszędzie i dla uruchomienia potrzebny jest tylko komputer i internet. Wygodność zapewnijmy przemyślonym interfejsem, który będzie w razie problemów pomagał użytkownikowi w ich rozwiązaniu za pomocą odpowiednich komunikatów i sugestii. W pracy zostanie omówniony proces projektowania interfejsu oraz szczegóły implementacji niektórych, najbardziej interesujących części aplikacji. 
+Celem pracy jest stworzenie intuicyjnego i dostępnego dla wszystkich interfejsu graficznego dla oryginalnego SAT-solvera. Dostępność zapewnijmy tworząc aplikację webową dlatego, że nie wymaga od użytkownika żadnych nipotrzebnych instalacji, działa prawie wszędzie, a do uruchomienia potrzebny jest tylko komputer i internet. Intuicyjność zapewnijmy przemyślonym interfejsem, który w razie problemów będzie pomagał użytkownikowi w ich rozwiązaniu za pomocą odpowiednich komunikatów i sugestii. W pracy zostanie omówniony proces projektowania interfejsu oraz szczegóły implementacji niektórych, najbardziej interesujących części aplikacji. 
 
 Frontend będzie stworzony za pomocą biblioteki \textbf{React}, a backend za pomocą frameworku \textbf{FastAPI}. Na backendzie wykorzystamy pakiet \textbf{PySAT}, który daję możliwość korzystania z wielu zaimplementowanych SAT-solverów. Komunikację pomiędzy backendem a frontendem zapewnijmy poprzez HTTP zapytania.
 
@@ -149,29 +149,29 @@ Frontend będzie stworzony za pomocą biblioteki \textbf{React}, a backend za po
 
 Wygląd interfejsu graficznego mocno zależy od tego, jak zdefiniujemy funkcjonalności, więc zanim zacznimy, mamy je ściślie zdefiniować.  
 
-Mamy mieć edytor plików DIMACS CNF który będzie pomagał nam wykrywać błędy w formułach. Można wyróźnić wystąpinie następnych błędów:
+Mamy mieć edytor plików DIMACS CNF który będzie pomagał nam wykrywać błędy w formułach. Można wyróźnić wystąpinie następnych błędów, każdemu z nich z góry przepiszemy unikatowy kod błędu:
 
 \begin{itemize}
-    \item \textit{Kod błędu 0}: Nie można zostawiać pustych linii
-    \item \textit{Kod błędu 1}: Definicja formuły może być niepoprawna
-    \item \textit{Kod błędu 2}: Każda klauzula ma kończyć się zerem
-    \item \textit{Kod błędu 3}: Klauzula może być niepoprawna
-    \item \textit{Kod błędu 4}: W pliku nie może być więcej niż jedna definicji formuły
-    \item \textit{Kod błędu 5}: Zmienna w klauzuli może być nie w zakresie zdefiniowanym w definicji
+    \item \textit{Kod 0}: Nie można zostawiać pustych linii
+    \item \textit{Kod 1}: Definicja formuły może być niepoprawna
+    \item \textit{Kod 2}: Każda klauzula ma kończyć się zerem
+    \item \textit{Kod 3}: Klauzula może być niepoprawna
+    \item \textit{Kod 4}: W pliku nie może być więcej niż jedna definicji formuły
+    \item \textit{Kod 5}: Zmienna w klauzuli może być nie w zakresie zdefiniowanym w definicji
 \end{itemize}
 
-\noindent Dla każdego z wymienionych błędów mamy dawać użytkownikowi indywidualne sugestie do poprawienia:
+\noindent Dla każdego z wymienionych powyżej błędów mamy dawać użytkownikowi indywidualne sugestie do poprawienia:
 
 \begin{itemize}
-    \item \textit{Kod błędu 0}: usuwanie lub edycja linijki
-    \item \textit{Kod błędu 1}: edycja linijki z definicją
-    \item \textit{Kod błędu 2}: dopisywane zera na końcu linijki
-    \item \textit{Kod błędu 3}: usuwanie lub edycja linijki z klauzulą
-    \item \textit{Kod błędu 4}: wymiana istniejącej lub usuwanie linijki z definicją
-    \item \textit{Kod błędu 5}: edycja linijki z klauzulą
+    \item \textit{Kod 0}: usuwanie lub edycja linijki
+    \item \textit{Kod 1}: edycja linijki z definicją
+    \item \textit{Kod 2}: dopisywane zera na końcu linijki
+    \item \textit{Kod 3}: usuwanie lub edycja linijki z klauzulą
+    \item \textit{Kod 4}: wymiana istniejącej lub usuwanie linijki z definicją
+    \item \textit{Kod 5}: edycja linijki z klauzulą
 \end{itemize}
 
-Błędów może być dużo, więc damy też możliwość do automatycznego poprawiania formuły. Przy tym w formule następują następne zmiany:
+Błędów może być dużo, więc damy też możliwość do automatycznego poprawiania formuły. Przy tym w formule następują takie zmiany:
 
 \begin{enumerate}
     \item Na końcach linii są dopisywane zera.
@@ -182,26 +182,27 @@ Błędów może być dużo, więc damy też możliwość do automatycznego popra
 
 \noindent Ze względu na to, że formuła może być nieostrzożnie uszkodzona, użytkownik będzie poproszony o potwierzdzenie chęci zrobienia automatycznego poprawienia.
 
-Ma istnieć możliwość do wczytania formuły w postaci DIMACS CNF z pliku oraz zapisywania do pliku.
+W edytorze damy też możliwość pozbyć się zduplikowanych klauzul z formuły. Fajne jest to, że będziemy usuwać nie tylko dokładnie takie same klauzule, a i równoważne, ze względu na to, że alternatywa jest przemienna.
 
-Formuła z edytora ma być parsowana do zwykłej postaci CNF. W tej postaci formułę można będzie modyfikować, czyli usuwać, zmieniać lub dodawać klauzule. Dzięki temu użytkownik dostanie możliwość jednoczesnej edycji formuły w postaci CNF i DIMACS, może zanim wybrać wygodniejszy dla siebie sposób pracy z programem.
+W edytorze oprócz opcji wklejania zawartości pliku z formułą pojawi się możliwość do wczytania jej w postaci DIMACS CNF z pliku w formacie *.cnf lub *.txt. Zmodyfikowaną formułę można będzie zapisać do pliku w formacie *.txt.
 
-Korzystając z SAT-solvera użytkownik ma możliwość:
+Formuła z edytora będzie parsowana i wyświetlana w innym miejscu w zwykłej postaci CNF. W tej postaci formułę można będzie modyfikować: usuwać, zmieniać lub dodawać klauzule. Dzięki temu użytkownik dostanie możliwość jednoczesnej edycji formuły w CNF i DIMACS, będzie mógł zanim wybrać wygodniejszy dla siebie sposób pracy z programem.
+
+Zdefiniujemy podstawowe funkcję aplikacji dotyczące pracy z SAT-solverem. Użytkownik będzie mógł:
 
 \begin{itemize}
-    \item znalezienia i wyświetlenia pojedynczego wartościowania spełniającego formułę
-    \item możliwość znalezienia i wyświetlenia wszystkich wartościowań spełniających
+    \item dowiedzieć się czy formuła jest lub nie jest spełnialna
+    \item znaleźć pojedyncze wartościowanie spełniające formułę
+    \item jeśli formuła jest spełnialna pojawia się możliwość próby znalezienia kolejnego wartościowania 
+    \item uruchomić i w dowolnej chwili skończyć proces znalezienia wszystkich wartościowań spełniających
     \item wybrać SAT-solver z którego chce korzystać
 \end{itemize}
 
-Reszta:
+Znalezione wartościowania i ich ilość mamy w czytelny i jasny sposób pokazywać użytkownikowi. Dodamy jeszcze możliwość zapisania do pliku wartościowania w postaci zero-jedynkowej, żeby można było go wrzucić np. do przetwarzania przez jakiś inny program.
 
-\begin{itemize}
-    \item wyświetlanie ilości znalezionych rozwiązań
-    \item zapisywanie pojedynczego wartościowania w postaci czytelnej dla komputera, czyli zero-jedynkowo
-    \item możliwość usuwania zduplikowanych klauzul z formuły
-    \item możliwość lączenia dwóch formuł w jedną, co z kolei daje możliwość lączenia dowolnej ilości formuł
-\end{itemize}
+W końcu dodamy możliwość łączenia formuł. Nie można będzie łączyć 100 formuł naraz, ale można będzie połączyć dwie, co z kolei da możliwość łączenia dowolnej ilości formuł. Rezultat można będzie od razu wkleić do edytora, jeśli łączenie się powiodło.
+
+\newpage
 
 \section{Prototypowanie interfejsu}
 
@@ -210,8 +211,6 @@ W zakresie prototypowania komponent po komponencie stworzymy prototyp graficzneg
 \subsection{Edytor plików w formacie DIMACS CNF}
 
 Korzytając z SAT-solverów jesteśmy zmuszeni korzystać z plików w formacie DIMACS CNF, więc przydałoby się mieć edytor do takich plików. W podstawowej wersji będzie wyglądał następująco:
-
-\newpage
 
 \begin{figure}[ht]
     \centering
@@ -360,15 +359,24 @@ Został nam do zaprojektowania ostatni komponent, taki, który będzie pozwalał
     \label{fig:11}
 \end{figure}
 
-\noindent Widzimy tu najpierw dwa edytory i dwa przyciski. Edytory nie mają możliwości sprawdzenia błędów. Do edytorów można wkleić lub załadować formułę z pliku, klikając na przycik nr.1 lub nr.2. Kiedy dwie formuły zostały załadowane, użytkownik może nacisnąć przycisk "LINK FORMULAS". Jeśli nie wystąpiło błędów podczas łączenia, pojawi się odpowiedni komunikat, że formuły zostały pomyślnie połączone oraz odblokuje się przycisk "PASTE RESULT IN THE EDITOR". Kiedy użytkownik kliknie na przycsik nr.4, to zostanie przekierowany na stronę z edytorem w który już będzie wklejony rezultat łączenia.
+\noindent Widzimy tu najpierw dwa edytora i dwa przyciski. Edytory nie mają możliwości sprawdzenia błędów. Do edytorów można wkleić lub załadować formułę z pliku, klikając na przycik nr.1 lub nr.2. Kiedy dwie formuły zostały załadowane, użytkownik może nacisnąć przycisk "LINK FORMULAS". Jeśli nie wystąpiło błędów podczas łączenia, pojawi się odpowiedni komunikat, że formuły zostały pomyślnie połączone oraz odblokuje się przycisk "PASTE RESULT IN THE EDITOR". Kiedy użytkownik kliknie na przycsik nr.4, to zostanie przekierowany na stronę z edytorem w który już będzie wklejony rezultat łączenia.
 
 \section{Architektura aplikacji}
 
-\lipsum[1]
+Na frontendzie będziemy robili: wykrycie, wskazywanie i wyświetlenie błędów formuły, synchronizacja zmian formuły w edytorze i w formacie CNF.
 
-\lipsum[2]
+Część zadań rozwiążemy na backendzie: stwierdzenie czy formuła jest spełniala i zwrócenie pierwszego wartościowania, znalezienie następnego wartościowania, 
+automatyczne poprawienie formuły, usuwanie zduplikowanych klauzul, łączenie formuł.
 
-\lipsum[3]
+Na backendzie stworzymy następne endpointy:
+
+\begin{itemize}
+    \item post /fix ciało dimacs: string 
+    \item post /remove-duplicate ciało dimacs: string
+    \item post  /link  ciało firstDimacs: string and secondDimacs: string
+    \item post /solve ciało dimacs: string and solver: string
+    \item post /next-solution ciało formula: string and solver: string
+\end{itemize}
 
 \chapter{Implementacja}
 
@@ -433,9 +441,9 @@ Darmowa i otwarta biblioteka przeznaczona dla języka JavaScript.
 \chapter*{Podsumowanie}
 \addcontentsline{toc}{chapter}{Podsumowanie}
 
-Ja chcę, żeby mój program stał się początkiem tworzenia interfejsów graficznych dla różnych rodzajów SAT-solverów. Ze względu na brak takich programów. W mojej pracy dotknąłem tylko mało część, dużo rzeczy można jeszcze do tego dodać.
+Chcemy, żeby nasz program stał się początkiem tworzenia interfejsów graficznych dla różnych rodzajów SAT-solverów. Ze względu na brak takich programów. W tej pracy dotknęliśmy tylko mało część, dużo rzeczy można jeszcze do tego dodać.
 
-Będę \cite{einstein} zawsze otwarty na takie propozycję na GitHubie. Chciałbym, żeby \cite{dirac} studenci naszej uczelni w \cite{dirac} swoich pracach licencjackich lub \cite{knuthwebsite} nawet magisterskich \cite{knuth-fa} kontynuowali rozwijanie i polepszenie mojego programu.
+Będę \cite{einstein} zawsze otwarty na takie propozycję na GitHubie. Chciałbym, żeby \cite{dirac} studenci naszej uczelni w \cite{dirac} swoich pracach licencjackich lub \cite{knuthwebsite} nawet magisterskich \cite{knuth-fa} kontynuowali rozwijanie i polepszenie naszego programu.
 
 \listoffigures{}
 \addcontentsline{toc}{chapter}{Spis rysunków}
