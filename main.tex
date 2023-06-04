@@ -1,9 +1,15 @@
-\documentclass[a4paper,12pt,oneside]{book}
+\documentclass[a4paper,12pt]{book}
 
 \usepackage[pdftex]{graphicx}
 \graphicspath{ {./images/} }
 
-\usepackage{biblatex}
+\usepackage{caption}
+\captionsetup{justification=centering}
+
+\usepackage{csquotes}
+\usepackage[polish]{babel}
+
+\usepackage[backend=biber,sorting=none,style=numeric]{biblatex} % [sorting=none] by appearance sort
 \addbibresource{bibliography.bib} 
 
 \usepackage{amsthm} % definicje
@@ -27,6 +33,8 @@
 
 \usepackage{fancyhdr} % headers
 
+\newcommand*\noheadertext[1]{\markboth{#1}{#1}}
+
 \pagestyle{fancy}
 \renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}
 \fancyhead{}
@@ -41,93 +49,97 @@
 
 \tableofcontents{}
 
+\noheadertext{Spis treści}
+
 \chapter*{Wstęp}
 \addcontentsline{toc}{chapter}{Wstęp}
 
- Graficzny interfejs użytkownika (ang. graphical user interface, GUI) jest typem interfejsu za pomocą którego użytkownik wchodzi w interakcję z komputerem, programem. Alternatywą do interfejsów graficznych są interfejsy konsolowe (ang. command line interface, CLI). Wadą takiego sposobu korzystania z programu jest to, że mamy pamiętać komendy na pamięć i je ręcznie wpisywać. Z tego powodu, że to jest uciążliwe dla więkzości ludzi, stały się popularne interfejsy graficzne, które są bardzo ważną częścią każdej współczesnej aplikacji. Wyobraźmy, na przykład, co by było gdyby systemy operacyjne nie miały interfejsów graficznych? Brak interfejsu bardzo podwyższa poziom przygotowania dla korzystania z takiej aplikacji. Interfejsy, w większości, czynią skomplikowane programy dostępnymi i zrozumiałymi dla wielu ludzi, niskopoziomowe staje się wysokopoziomowym. Dobrze przemyślony, atrakcyjny, niezawodny, pomagający użytkownikowi interfejs napewno poszerza grono użytkowników programu, co może m.in dobrze wpłynąć na rozwój przedsiębiorstwa lub suksec twórcy. Dlatego jest bardzo ważne dbać o to, żeby aplikacja była nie tylko funkcjonalna, ale i jej interfejs graficzny nie miał opóźnień, był intuicyjny i porządnie wyglądał. 
+ Graficzny interfejs użytkownika (ang. graphical user interface, GUI) jest typem interfejsu, za pomocą którego użytkownik wchodzi w interakcję z komputerem, programem. Alternatywą do interfejsów graficznych są interfejsy konsolowe (ang. command line interface, CLI). Wadą takiego sposobu korzystania z programu jest to, że trzeba pamiętać komendy i je ręcznie wpisywać. Z tego powodu, że to jest uciążliwe dla większości ludzi, popularne stały się interfejsy graficzne, które są bardzo ważną częścią prawie każdej współczesnej aplikacji. Brak interfejsu podwyższa poziom przygotowania koniecznego do korzystania z takiej aplikacji. Dobrze przemyślany, atrakcyjny, niezawodny, pomagający użytkownikowi interfejs na pewno poszerza grono użytkowników programu, co może m.in dobrze wpłynąć na rozwój przedsiębiorstwa lub sukces twórcy. 
+
+ Celem pracy było zaprojektowanie i implementacja webowego interfejsu graficznego SAT-solvera.
+ 
+ Rozdział pierwszy zawiera wprowadzenie do tematyki pracy. W drugim rozdziale opisano projekt aplikacji. W trzecim rozdziale przedstawiono szczegóły implementacji niektórych części aplikacji.
+ 
+\noheadertext{Wstęp}
 
 \chapter{Wprowadzenie}
 
 \section{CNF}
+ 
+\textbf{Zmienna zdaniowa} to zmienna, która może przyjmować wartość \textit{true} lub \textit{false}. 
 
-\begin{definition}[CNF]
-     Koniunkcyjna postać normalna (ang. conjunctive normal form) danej formuły logicznej to równoważna jej formuła zapisana w postaci koniunkcji klauzul. Klauzula jest zbiorem literałów połączonych alternatywą. Literałem nazywamy pojedynczą zmienną zdaniową lub pojedynczą zanegowaną zmienną zdaniową. Zmienna zdaniowa to zmienna która może przyjmować wartość \textit{true} lub \textit{false} 
-\end{definition}
-
-Przykład klauzuli:
-
-\begin{center}
-    $(x \lor y \lor z)$. 
-\end{center}
-
-Przykłady literałów:
+\textbf{Literałem} nazywamy pojedynczą zmienną zdaniową lub pojedynczą zanegowaną zmienną zdaniową. Przykłady literałów:
 
 \begin{center}
     $p, q, \neg p$
 \end{center}
 
-\begin{formal}
-    Formuła $\psi$ jest w koniunkcyjnej postaci normalnej jeśli jest ona koniunkcją klauzul, z których każda jest alternatywą \textit{literałów}, tzn. ma następującą postać: 
-    \begin{center}
-    $(p_{11} \lor p_{12} \lor \ldots \lor p_{1{k_1}}) \land (p_{21} \lor p_{22} \lor \ldots \lor p_{2{k_2}}) \land \ldots \land (p_{n1} \lor p_{n2} \lor \ldots \lor p_{n{k_n}})$
-    \end{center}
-    gdzie każde $p_{ij}$ jest literałem.
-\end{formal}
+\textbf{Klauzula} jest zbiorem literałów połączonych alternatywą. Przykład klauzuli:
+
+\begin{center}
+    $(x \lor y \lor z)$. 
+\end{center}
+
+\textbf{Koniunkcyjna postać normalna} (ang. conjunctive normal form) danej formuły logicznej to równoważna jej formuła zapisana w postaci koniunkcji klauzul. Przykład formuły w postaci CNF:
+
+\begin{center}
+    $(x_1 \lor \neg x_3) \land (x_2 \lor x_3 \lor \neg x_1)$
+\end{center}
 
 Każdą formułę logiczną można przedstawić równoważnie w postaci CNF. Dla jednej formuły logicznej może istnieć kilka równoważnych jej formuł w CNF.  
 
 \section{Problem spełnialności formuł logicznych}
 
-\textbf{Problem spełnialności formuł logicznych} jest ważym problemem obliczeniowym w teorii złożoności. Wejściem problemu jest formuła logiczna w postaci CNF. Problem polega na znalezieniu wartościowania, tzn. wartości wszystkich zmiennych zdaniowych, takich, kiedy formuła staje się prawdziwa. Formułę, która posiada takie wartościowanie nazywamy formułą \textit{spełnialną} (ang. satisfiable), a która nie, odpowiednio \textit{niespełnialna} (ang. unsatisfiable).
+\textbf{Problem spełnialności formuł logicznych} jest ważnym problemem obliczeniowym w teorii złożoności. Wejściem problemu jest formuła logiczna w postaci CNF. Problem jest decyzyjny i polega na znalezieniu odpowiedzi na pytanie, czy istnieje wartościowanie, tzn. czy da się znaleźć takie wartości zmiennych zdaniowych formuły, dla których formuła jest spełniona. Formułę, która posiada takie wartościowanie nazywamy formułą \textit{spełnialną} (ang. satisfiable), a taka, która takiego wartościowania nie posiada, odpowiednio \textit{niespełnialną} (ang. unsatisfiable).
 
 Na przykład, formuła
 \begin{center}
     $(x_1 \lor \neg x_3) \land (x_2 \lor x_3 \lor \neg x_1)$
 \end{center}
 
-jest spełnialna, dlatego, że istnieje wartościowanie które ją spełnia, np.:
+jest spełnialna dlatego, że istnieje wartościowanie, które ją spełnia, na przykład:
 \begin{center}
     $x_1 = false, x_2 = false, x_3 = false$
 \end{center}
 
 \section{SAT-solvery}
 
-\textbf{SAT-solver} jest programem mający na celu rozwiązanie problemu spełnialności. Na wejściu program przyjmuje formulę w postaci CNF, a na wyjściu zwraca odpowiedź, czy podana formuła jest lub nie jest spełnialna. Oryginalny SAT-solver wymaga spełnienia \textbf{wszystkich} klauzul.
+\textbf{SAT-solver} jest programem, mającym na celu rozwiązanie problemu spełnialności formuł logicznych. Na wejściu program przyjmuje formulę w postaci CNF, a na wyjściu zwraca odpowiedź, czy podana formuła jest lub nie jest spełnialna.
 
-Większość SAT-solverów zwraca nie tylko informację o spełnialności, ale też przykładowe wartościowanie, jeśli formuła była spełnialna, lub minimalny zbiór niespełnialnych klauzul, jeśli formuła była niespełnialna.
+Większość SAT-solverów zwraca nie tylko informację o spełnialności, ale też przykładowe wartościowanie spełniające, jeśli formuła jest spełnialna, lub minimalny zbiór niespełnialnych klauzul, jeśli formuła jest niespełnialna.
 
-SAT-solvery mają wiele udanych zastosowań w różnych dziedzinach, takich jak np. sztuczna inteligencja, automatyzacja projektowania elektronicznego (ang. Electronic Design Automation), analiza programów.
+SAT-solvery mają wiele udanych zastosowań w różnych dziedzinach, takich jak np. sztuczna inteligencja, automatyzacja projektowania elektronicznego (ang. Electronic Design Automation) \cite{pmsat}.
 
 Istnieją różne rodzaje SAT-solverów, które rozwiązują inne odmiany problemu spełnialności formuł logicznych: 
 
 \begin{itemize}
-    \item MAX-SAT - szuka maksymalnej liczby klauzul, które mogą być spełnione, tzn. zadajemy pytanie ile maksumalnie klauzul z tej formuły dadzą formułę spełnialną jeśli połączymy je razem.
-    \item Częściowy MAX-SAT (ang. Partial MAX-SAT) - podczas gdy klasyczny problem SAT wymaga spełnienia wszystkich klauzul, PM-SAT jest rozluźniony spełnienia tego wymogu poprzez oznaczenie niektórych klauzul jako miękkie (ang. soft), a innych jako twarde (ang. hard). Celem jest znalezienie wartościowania, które spełnia wszystkie klauzule twarde i maksymalizuje liczbę spełnionych klauzul miękkich.
+    \item MAX-SAT - szuka maksymalnego podzbioru klauzul formuły, które dają formułę spełnialną.
+    \item Partial MAX-SAT \cite{pmsat} - dzieli formułę na klauzule miękkie i twarde, celem jest znalezienie wartościowania, które spełnia wszystkie klauzule twarde i maksymalizuje liczbę spełnionych klauzul miękkich.
 
 \end{itemize}
 
 \section{Format DIMACS CNF}
 
-DIMACS CNF to format tekstowy reprezentujący formułę w koniunkcyjnej postaci normalnej. Pliki z formułami mogą być w dowolnym formacie tekstowym, ale najczęściej stosują się *.cnf lub *.txt. 
+DIMACS CNF \cite{dimacsdocs} to format tekstowy reprezentujący formułę w koniunkcyjnej postaci normalnej. 
 
 Reguły których trzeba pilnować, żeby poprawnie stworzyć plik z formułą: 
 
 \begin{enumerate}
-    \item Linie zaczynające się od znaku \textit{c} przedstawiają komentarze.
-    \item Linia zaczynająca się od znaku \textit{p} jest definicją formuły i wygląda następująco: \textit{p cnf l k}. Gdzie \textit{l} i \textit{k} są liczbami dodatnimi, gdzie \textit{l} reprezentuje liczbę zmiennych formuły, a \textit{k} reprezentuję liczbę klauzul.
-    \item Klauzule są umieszczane dokładnie po definicji formuły. Każda klauzula jest zakodowana jako sekwencja liczb dziesiętnych odseparowanymi spacjami.
+    \item Linie zaczynające się od znaku \textit{c} zawierają komentarze.
+    \item Linia zaczynająca się od znaku \textit{p} jest definicją formuły i wygląda następująco: \textit{p cnf l k}, gdzie \textit{l} i \textit{k} są liczbami dodatnimi, \textit{l} reprezentuje liczbę zmiennych formuły, a \textit{k} liczbę klauzul.
+    \item Klauzule są umieszczane po definicji formuły. Każda klauzula jest zakodowana jako sekwencja liczb dziesiętnych odseparowanymi spacjami. Liczby dodatnie oznaczają zmienne niezanegowane, a liczby ujemne zmienne zanegowane.
     \item Każda linia zawiera dokładnie jedną klauzulę i ma kończyć się symbolem 0.
     \item Zostawianie pustych linii w formule nie jest dozwolone.
 \end{enumerate}
-Niepilnowanie tych reguł może doprowadzić do błędnych wyników lub w ogóle do unieruchomienia SAT-solvera.
+Niepilnowanie tych reguł może doprowadzić do błędnych wyników lub w ogóle do zawieszenia się SAT-solvera.
 
-Na przykład formuła w CNF
+Przykładowo formuła w CNF
 
 \begin{center}
     $(x_1 \lor x_2 \lor x_3 \lor x_4) \land (\neg x_1 \lor x_2) \land (x_3 \lor x_4 \lor \neg x_1) \land (x_2 \lor x_3 \lor \neg x_1)$ 
 \end{center}
 
-może być zakodowana w DIMACS CNF jako:
+może być zapisana w DIMACS CNF jako:
 
 \begin{verbatim}
                                 p cnf 4 4
@@ -139,349 +151,511 @@ może być zakodowana w DIMACS CNF jako:
 
 \section{Cel i zakres pracy}
 
-Celem pracy jest stworzenie intuicyjnego i dostępnego dla wszystkich interfejsu graficznego dla oryginalnego SAT-solvera. Dostępność zapewnijmy tworząc aplikację webową dlatego, że nie wymaga od użytkownika żadnych nipotrzebnych instalacji, działa prawie wszędzie, a do uruchomienia potrzebny jest tylko komputer i internet. Intuicyjność zapewnijmy przemyślonym interfejsem, który w razie problemów będzie pomagał użytkownikowi w ich rozwiązaniu za pomocą odpowiednich komunikatów i sugestii. W pracy zostanie omówniony proces projektowania interfejsu oraz szczegóły implementacji niektórych, najbardziej interesujących części aplikacji. 
+Celem pracy było stworzenie intuicyjnego i dostępnego interfejsu graficznego dla SAT-solvera. Dostępność miała zostać zapewniona poprzez stworzenie aplikacji webowej, która nie wymaga od użytkownika żadnych niepotrzebnych instalacji, działa prawie wszędzie, a do uruchomienia potrzebny jest tylko komputer i internet. Intuicyjność miała zostać zapewniona poprzez przemyślany interfejs, który w razie problemów pomaga użytkownikowi w ich rozwiązaniu za pomocą odpowiednich komunikatów i sugestii.
 
-Frontend będzie stworzony za pomocą biblioteki \textbf{React}, a backend za pomocą frameworku \textbf{FastAPI}. Na backendzie wykorzystamy pakiet \textbf{PySAT}, który daję możliwość korzystania z wielu zaimplementowanych SAT-solverów. Komunikację pomiędzy backendem a frontendem zapewnijmy poprzez HTTP zapytania.
+Wśród szczegółowych wymagań znalazły się:
+
+\begin{enumerate}
+    \item Edytor plików w formacie DIMACS CNF, który wskazuje błędy w formule oraz pomaga użytkownikowi je naprawić.
+    \item Przekształcanie formuły z DIMACS CNF do CNF oraz umożliwienie modyfikacji formuły w tej postaci.
+    \item Możliwość zliczania i znalezienia wszystkich wartościowań spełniających formulę.
+    \item Możliwość łączenia formuł.
+\end{enumerate}
 
 \chapter{Projekt}
 
-\section{Definicja funkcjonalności}
+\section{Funkcjonalności}
 
-Wygląd interfejsu graficznego mocno zależy od tego, jak zdefiniujemy funkcjonalności, więc zanim zacznimy, mamy je ściślie zdefiniować.  
+\subsection{Obsługa błędów}
 
-Mamy mieć edytor plików DIMACS CNF który będzie pomagał nam wykrywać błędy w formułach. Można wyróźnić wystąpinie następnych błędów, każdemu z nich z góry przepiszemy unikatowy kod błędu:
-
-\begin{itemize}
-    \item \textit{Kod 0}: Nie można zostawiać pustych linii
-    \item \textit{Kod 1}: Definicja formuły może być niepoprawna
-    \item \textit{Kod 2}: Każda klauzula ma kończyć się zerem
-    \item \textit{Kod 3}: Klauzula może być niepoprawna
-    \item \textit{Kod 4}: W pliku nie może być więcej niż jedna definicji formuły
-    \item \textit{Kod 5}: Zmienna w klauzuli może być nie w zakresie zdefiniowanym w definicji
-\end{itemize}
-
-\noindent Dla każdego z wymienionych powyżej błędów mamy dawać użytkownikowi indywidualne sugestie do poprawienia:
+Wyróżniono następujące błędy w formule w postaci DIMACS CNF, każdemu z nich z góry przepisano unikatowy kod błędu:
 
 \begin{itemize}
-    \item \textit{Kod 0}: usuwanie lub edycja linijki
-    \item \textit{Kod 1}: edycja linijki z definicją
-    \item \textit{Kod 2}: dopisywane zera na końcu linijki
-    \item \textit{Kod 3}: usuwanie lub edycja linijki z klauzulą
-    \item \textit{Kod 4}: wymiana istniejącej lub usuwanie linijki z definicją
-    \item \textit{Kod 5}: edycja linijki z klauzulą
+    \item \textit{Kod 0}: Nie można zostawiać pustych linii.
+    \item \textit{Kod 1}: Definicja formuły może być niepoprawna.
+    \item \textit{Kod 2}: Każda klauzula ma kończyć się zerem.
+    \item \textit{Kod 3}: Klauzula może być niepoprawna.
+    \item \textit{Kod 4}: W pliku nie może być więcej niż jedna definicja formuły.
+    \item \textit{Kod 5}: Zmienna w klauzuli nie jest zadeklarowana w definicji.
 \end{itemize}
 
-Błędów może być dużo, więc damy też możliwość do automatycznego poprawiania formuły. Przy tym w formule następują takie zmiany:
+\noindent Dla każdego z wymienionych powyżej błędów zostaną dodane indywidualne sugestie do poprawienia:
+
+\begin{itemize}
+    \item \textit{Kod 0}: Usuwanie lub edycja linii.
+    \item \textit{Kod 1}: Edycja linii z definicją.
+    \item \textit{Kod 2}: Dopisywane zera na końcu linii.
+    \item \textit{Kod 3}: Usuwanie lub edycja linii z klauzulą.
+    \item \textit{Kod 4}: Wymiana istniejącej lub usuwanie linii z definicją.
+    \item \textit{Kod 5}: Edycja linii z klauzulą.
+\end{itemize}
+
+Błędów może być dużo, więc dodana zostanie możliwość automatycznego poprawiania formuły. Przy tym w formule nastąpią zmiany:
 
 \begin{enumerate}
-    \item Na końcach linii są dopisywane zera.
-    \item Liczby zmiennych i klauzul w nagłówku są poprawiane na odpowiednie.
-    \item Puste linie i niepoprawne klauzule są usuwane.
-    \item Komentarze są usuwane.
+    \item Na końcach linii będą dopisane zera.
+    \item Liczby zmiennych i klauzul w nagłówku będą poprawione na odpowiednie.
+    \item Puste linie i niepoprawne klauzule będą usuwane.
+    \item Komentarze będą usuwane.
 \end{enumerate}
 
-\noindent Ze względu na to, że formuła może być nieostrzożnie uszkodzona, użytkownik będzie poproszony o potwierzdzenie chęci zrobienia automatycznego poprawienia.
+\noindent Ze względu na to, że formuła może zostać uszkodzona, użytkownik będzie poproszony o potwierdzenie chęci zrobienia automatycznego poprawienia.
 
-W edytorze damy też możliwość pozbyć się zduplikowanych klauzul z formuły. Fajne jest to, że będziemy usuwać nie tylko dokładnie takie same klauzule, a i równoważne, ze względu na to, że alternatywa jest przemienna.
+Zostanie stworzony komponent z tabelą do wyświetlania wszystkich błędów, użytkownik będzie mógł szybko je przeglądać i naprawiać. Błędy w tabeli będą umieszczane w kolejności ich wykrycia.
 
-W edytorze oprócz opcji wklejania zawartości pliku z formułą pojawi się możliwość do wczytania jej w postaci DIMACS CNF z pliku w formacie *.cnf lub *.txt. Zmodyfikowaną formułę można będzie zapisać do pliku w formacie *.txt.
+W edytorze będą podświetlane linie z błędami oraz będzie dana możliwość szczegółowego przejrzenie w tym samym miejscu informacji o konkretnym błędzie oraz możliwość natychmiastowego poprawienia go.
 
-Formuła z edytora będzie parsowana i wyświetlana w innym miejscu w zwykłej postaci CNF. W tej postaci formułę można będzie modyfikować: usuwać, zmieniać lub dodawać klauzule. Dzięki temu użytkownik dostanie możliwość jednoczesnej edycji formuły w CNF i DIMACS, będzie mógł zanim wybrać wygodniejszy dla siebie sposób pracy z programem.
+\subsection{Praca z SAT-solverem}
 
-Zdefiniujemy podstawowe funkcję aplikacji dotyczące pracy z SAT-solverem. Użytkownik będzie mógł:
+Zostaną dodane podstawowe funkcje dotyczące pracy z SAT-solverem. Będzie można:
+
+\begin{enumerate}
+    \item Dowiedzieć się, czy formuła jest lub nie jest spełnialna.
+    \item Znaleźć pojedyncze wartościowanie spełniające formułę.
+    \item Spróbować znaleźć kolejne wartościowanie, jeśli formuła jest spełnialna.
+    \item Uruchomić i w dowolnej chwili skończyć proces znajdowania wszystkich wartościowań spełniających.
+    \item Wybrać SAT-solver.
+\end{enumerate}
+
+\subsection{Możliwości edytora}
+
+Zostaną dodane następujące funkcje aplikacji dotyczące pracy z edytorem. Będzie można:
+
+\begin{enumerate}
+    \item Pozbyć się zduplikowanych klauzul w formule. Będą usuwane nie tylko dokładnie takie same klauzule, ale także równoważne, ze względu na to, że alternatywa jest przemienna.
+    \item Zapisać do pliku z rozszerzeniem \textit{txt} formułę w formacie DIMACS CNF.
+    \item Wczytać formułę w postaci DIMACS CNF z pliku z rozszerzeniem \textit{cnf} lub \textit{txt}. 
+\end{enumerate}
+
+\newpage
+
+\section{Komponenty}
+
+\textbf{Komponenty} pozwalają podzielić interfejs graficzny na niezależne, pozwalające na ponowne użycie części i myśleć o każdej z nich osobno.
+
+Biorąc pod uwagę funkcjonalności aplikacji, zaplanowano następujące komponenty: 
 
 \begin{itemize}
-    \item dowiedzieć się czy formuła jest lub nie jest spełnialna
-    \item znaleźć pojedyncze wartościowanie spełniające formułę
-    \item jeśli formuła jest spełnialna pojawia się możliwość próby znalezienia kolejnego wartościowania 
-    \item uruchomić i w dowolnej chwili skończyć proces znalezienia wszystkich wartościowań spełniających
-    \item wybrać SAT-solver z którego chce korzystać
+    \item Edytor.
+    \item Błędy.
+    \item Wartościowania spełniające formułę.
+    \item Formuła w postaci CNF.
+    \item Łączenie formuł.
 \end{itemize}
 
-Znalezione wartościowania i ich ilość mamy w czytelny i jasny sposób pokazywać użytkownikowi. Dodamy jeszcze możliwość zapisania do pliku wartościowania w postaci zero-jedynkowej, żeby można było go wrzucić np. do przetwarzania przez jakiś inny program.
-
-W końcu dodamy możliwość łączenia formuł. Nie można będzie łączyć 100 formuł naraz, ale można będzie połączyć dwie, co z kolei da możliwość łączenia dowolnej ilości formuł. Rezultat można będzie od razu wkleić do edytora, jeśli łączenie się powiodło.
-
-\newpage
-
-\section{Prototypowanie interfejsu}
-
-W zakresie prototypowania komponent po komponencie stworzymy prototyp graficznego interfejsu SAT-solvera oraz rozważymy przyjęte decyzji projektowe.
-
-\subsection{Edytor plików w formacie DIMACS CNF}
-
-Korzytając z SAT-solverów jesteśmy zmuszeni korzystać z plików w formacie DIMACS CNF, więc przydałoby się mieć edytor do takich plików. W podstawowej wersji będzie wyglądał następująco:
+\subsection{Edytor}
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=14.30cm]{1}
-    \caption{Edytor podstawowy}
-    \label{fig:1}
+    \includegraphics[width=14.12cm]{editor}
+    \caption{Komponent edytora plików DIMACS CNF wraz z komponentem do pracy z SAT-solverem}
+    \label{fig:editor}
 \end{figure}
 
-\noindent W środku większą częsć zajmuje obszar w którym będziemy modyfikować naszą formułę, na razie istnieje możliwość tylko wklejenia jej do edytora. Po prawej stronie mamy scroll który będzie pomagał nam przemieszczać się po formułach z dużą liczbą klauzul. Po lewej stronie mamy słupek z informacją o numerach linii, w przyszłości nam się to przyda dla wykrycia i wskazywania błędów.
+Na rysunku \ref{fig:editor} większą część zajmuje pole tekstowe, w którym według projektu będzie modyfikowana formuła. Pod numerem 8 umieszczony jest pasek przewijania, który pomoże przemieszczać się po formułach z dużą liczbą klauzul. Po lewej stronie, pod numerem 9, znajduje się słupek "przypisujący" numer linii do jej zawartości, będzie potrzebny do wskazywania błędów.
 
-Nie za bardzo wygodne jest wklejanie zawartości pliku, więc damy użytkownikowi możliwość do załadowania pliku z formułą oraz możliwość do zapisania pliku z zmodyfikowaną formułą:
-
-\newpage
-
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=14.30cm]{2}
-    \caption{Edytor z możliwością załadowania i zapisania formuły}
-    \label{fig:2}
-\end{figure}
-
-\noindent Po prawej stronie dodaliśmy obszar który będzie pomagał nam zarządzać edytorem, obecnie znajdują się tu dwa przyciski: nr. 1 daje możliwość wybrać i załadować plik z formułą, a nr.2 daje możliwość zapisać plik i dać mu nazwę.
-
-W formule, przez przypadek, mogą pojawić się zduplikowane klauzule, chociaż to nie za bardzo wpływa na wydajność i szybkość działania SAT-solvera, damy użytkownikowi możliwość usunięcia takich klauzul:
-
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=14.30cm]{3}
-    \caption{Edytor z możliwością usunięcia zduplikowanych klauzul}
-    \label{fig:3}
-\end{figure}
-
-Z obrazów przycisków z obszaru do zarządzania edytorem może nie być jasne, co one robią, więć dodana jest możliwość zobaczyć w postaci tekstowej tę informację. Przy najechaniu myszką na każdy z przycisków pod nimi będzie pojawiała się podpowiedź (ang. tooltip) z tekstem. Na przykład pod przyciskiem nr.1 pojawi się komunikat "Upload formula".
-
-\newpage
-
-\subsection{Wykrycie, wskazywanie i naprawienie błędów}
-
-Dla poprawnego i przewidywanego działania SAT-solvera konieczne jest poprawne stworzenie pliku z formułą w formacie DIMACS CNF. Jako twórcy interfejsu graficznego mamy pomoc użytkownikowi poradzić z wykryciem, wskazywaniem i naprawieniem błędów w razie ich wystąpienia. 
-
-Kiedy formuła w edytorze będzie się zmieniała, będzie wywoływana funkcja wykrywająca błędy. Wykryte błędy mamy w jakiś sposób wyświetlić. Propnujemy podświetlenie odpowiednich linijek. Tak to będzie wyglądało: 
-
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=14.30cm]{4}
-    \caption{Edytor wraz z tabelą z błędami}
-    \label{fig:4}
-\end{figure}
-
-\noindent Widzimy jeszcze, że w obszar do zarządzania formułą został dodany nowy przycisk pod numerem 4. Będzie on odpowiadał za automatyczne poprawienie błędów. Kiedy użytkownik nacisnie na ten przycisk, zanim poprawienie się zacznie, będzie wyświetlony komunikat mówiący o bezzwrotności działań użytkownika i prośbą o potwierdzenie chęci zrobienia popraw. Dodatkowo w komunikacie będzie napisano, że: 
+Po prawej stronie zostanie dodany obszar z przyciskami do zarządzania edytorem: 
 
 \begin{itemize}
-    \item puste linie, komentarze oraz uszkodzone klauzule zostaną usunięte
-    \item liczba zmiennych i klauzul będzie przeliczona
+    \item Nr 4 odpowiada za załadowanie formuły do edytora z pliku.
+    \item Nr 5 odpowiada za zapisanie formuły do pliku.
+    \item Nr 6 odpowiada za automatyczne poprawienie błędów.
+    \item Nr 7 odpowiada za usuwanie zduplikowanych klauzul.
 \end{itemize}
 
-W tym momencie, jeśli użytkownik będzie miał błędy w formule, będzie je dobrze widział, ale ma je też naprawić. Żeby to teraz zrobić, ma z góry wiedzieć w czym jest problem. Ułatwmy zrozumienie dodaniem odpowiednich podpowiedzi przy najechaniu myszką na czerwoną linię. Na rysunku 2.5 pojawiła się podpowiedź, gdzie w pierwszej linijce znajduje się treść uszkodzonej linii, w drugiej opis błędu, a w trzeciej propozycja do naprawienia w postaci przycisku. W tym przykładzie widzimy, że zapropanowano dodnie zera na końcu linii.
+Żeby znaczenie ikon przycisków z obszaru do zarządzania edytorem było jasne, zostanie dodana możliwość zobaczenia w postaci tekstowej informacji o znaczeniu przycisku. Po najechaniu myszką na każdy z przycisków pod nimi będzie pojawiała się podpowiedź (ang. tooltip) z tekstem. Na przykład pod przyciskiem nr 1 pojawi się podpowiedź "Upload formula".
+
+Na dole będzie znajdował się komponent do pracy z SAT-solverem składający się z czterech przycisków: 
+
+\begin{itemize}
+    \item Nr 1 odpowiada za wyszukiwanie wszystkich wartościowań. Wyszukiwanie można będzie przerwać w dowolnej chwili. Po przerwaniu wyszukiwania, można będzie je ponownie zacząć od miejsca w którym przerwano, w tym przypadku na przycisku będzie znajdował się tekst "Find other solutions".
+    \item Nr 2 odpowiada za sprawdzenie, czy formuła jest lub nie jest spełnialna. Jeśli jest spełnialna zwracane będzie przykładowe wartościowanie.
+    \item Nr 3 odpowiada za znalezienie kolejnego wartościowania, jeśli takie istnieje. Będzie nieaktywny, jeśli formula będzie niespełnialna. 
+    \item Nr 4 odpowiada za wybór SAT-solvera.
+\end{itemize}
+
+Jeśli formuła w edytorze będzie zawierała błędy - uruchomienie SAT-solvera nie będzie możliwe. Wszystkie wymienione przyciski oprócz nr 4 będą nieaktywne.
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=14.30cm]{5}
-    \caption{Edytor wyświetlający podpowiedź przy najechaniu myszką}
-    \label{fig:5}
+    \includegraphics[width=14.12cm]{editorwitherrors}
+    \caption{Komponent edytora z formułą, w której zostały wykryte błędy}
+    \label{fig:editorwitherrors}
 \end{figure}
 
-\newpage
+Na rysunku \ref{fig:editorwitherrors} można zobaczyć jak będzie wyglądał edytor z formułą w której zostały wykryte błędy. Takie linie będą podświetlanie czerwonym kolorem. Po najechaniu myszką na linię z błędem będzie pojawiała się informacja, w której w pierwszej linii będzie znajdowała się treść uszkodzonej linii, w drugiej opis błędu, a w trzeciej propozycja sposobu naprawienia w postaci przycisku. W tym przykładzie widać, że zaproponowano dodanie zera na końcu klauzuli.
 
-Zostały nam jeszcze dwa problemy do rozwiązania. Po pierwsze, w razie błędów nie widzimy od razu ile ich jest. Po drugie, ze względu na to, że pliki z formułami mogą zawierać dużo klauzul, a zatem potencjalnie dużo błędów, nie mamy sposóbu na wyświetlanie wszystkich blędów naraz w jednym miejscu. W drugim przypadku przydało by się też zostawić możliwość szybkiej naprawy. 
+Według projektu edytor znajduje się na samej górze strony.
 
-Te dwa problemy można rozwiązać wprowadzając kolejny komponent, który będzie znajdował się od razu pod edytorem: 
+% \newpage
+
+\subsection{Błędy}
+
+Według projektu, komponent na rysunku \ref{fig:problems} jest umieszczony pomiędzy edytorem a przyciskami do pracy z SAT-solverem. Komponentu nie będzie na stronie, kiedy formuła, z którą będzie pracował użytkownik nie będzie zawierała błędów. Będzie miał dwa stany: otwarty i zamknięty. Domyślnie będzie ustawiony stan zamknięty. Naciśnięcie na czerwony prostokąt będzie zmieniało stan komponentu z zamkniętego na otwarty i na odwrót. Niezależne od stanu otwarcia na górze zawsze będzie znajdował się czerwony prostokąt, w którym z lewej strony będzie napisane ile błędów jest w formule. Poniżej nagłówka będzie umieszczona tabela zawierająca wszystkie błędy. Będą w niej trzy kolumny: w pierwszej będzie znajdował się opis błędu, w drugiej zawartości uszkodzonej linii, a w trzeciej będą przyciski, dzięki którym użytkownik będzie mógł szybko naprawić błąd nie szukając go w edytorze.
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=14.30cm]{6}
-    \caption{Tabela z wykrytymi błędami}
-    \label{fig:6}
+    \includegraphics[width=14.12cm]{problems}
+    \caption{Komponent, w którym wyświetlane są wszystkie znalezione błędy}
+    \label{fig:problems}
 \end{figure}
 
-\noindent Jest ukryty, kiedy formuła nie zawiera błędów. Ma dwa stany: otwarty i zamknięty. Domyślnie ma stan zamknięty. Na górze widzimy nagłówek w którym jest napisano ile mamy błędów w formule. Klikająć na nagłówek zmieniamy stan otwarcia. Tabela ma trzy kolumny: w pierwszej znajduje się opis błędu, w drugie uszkodzona linia, a w trzeciej znajdują się przyciski, dzięki którym można szybko naprawić błąd. Błędy w tabeli są sortowane rosnąco w zależności od indexu linii wystąpienie.
+\subsection{Wartościowania spełniające formułę}
 
-\subsection{Podstawowe funkcje}
+Na górze komponentu (patrz rysunek \ref{fig:solutions}) będzie znajdował się nagłówek w którym będzie napisane ile wartościowań spełniających formułę znaleziono. Naciśnięcie na nagłówek będzie zmieniało stan komponentu z zamkniętego na otwarty i na odwrót. Na dole zostanie umieszczony komponent pozwalający przełączać strony z rozwiązaniami. Rozdzielenie wartościowań spełniających formułę na strony wprowadzono ze względów wydajnościowych. Na każdej stronie będzie znajdowała się stała ilość elementów.
 
-Kiedy umiemy już wykrywać i naprawiać błędy, co zapewnia nam bezpieczne i przewidywane działania SAT-solvera, możemy dodać przyciski kontrolujące i dać użytkownikowi możliwość do uruchomienia go:
+W projekcie wartościowania spełniające formułę są wyświetlane w siatce z 4 kolumnami i 2 wierszami. Liczba kolumn i wierszy może się różnić w implementacji. W projekcie przedstawiony został wygląd komponentu niezajmujący dużo miejsca na ekranie. Każde z wartościowań spełniających formułę jest oddzielnym komponentem.
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=14.30cm]{7}
-    \caption{Edytor ze wszystkimi przyciskami}
-    \label{fig:7}
+    \includegraphics[width=14.12cm]{solutions}
+    \caption{Komponent, w którym wyświetlane są wartościowania spełniające formułę z edytora}
+    \label{fig:solutions}
 \end{figure}
-
-Przycisk nr.6 pozwala dowiedzieć czy formuła jest lub nie jest spełnialna. Jeśli jest spełnialna zwracane jest pierwsze wartościowanie.
-
-Przycisk nr.7 pozwala znaleźć następne wartościowanie, jeśli takie istnieje. Jest nieaktywny jeśli formula jest niespełnialna.
-
-Przycisk nr.5 uruchamia wyszukiwanie wszystkich wartościowań. Wyszukiwanie można będzie przerwać w dowolnej chwili kiedy będzie znalezione pierwsze wartościowanie. Po przerwaniu wyszukiwanie można ponownie zacząć od momentu skończenia, w tym przypadku tekstem przycisku będzie nie "FIND ALL", a "FIND OTHER SOLUTIONS".
-
-Przycisk nr.8 pozwala wybrać dowolny z dostępnych w pakiecie PySAT SAT-solver.
-
-Jeśli formuła w edytorze zawiera błędy - uruchomienie SAT-solvera nie jest dozwolone. Wszystkie wymienione przyciski oprócz nr.8 będą nieaktywne.
-
-\newpage
-
-\subsection{Wyświetlanie wartościowań}
-
-Chcemy, żeby komponent pozwalał w jasny sposób widzeć jakie wartości zostały przepisane zmiennym formuły. 
-
-Np. formuła ma 1000 zmiennych, jedno warościowanie to 1000 komponentów (załóżmy, że jeden komponent to jeden element) i rozwiązań np. jest 30, 30 * 1000 = 30000 elementów na stronie, co może ją znacznie obciążyć jeśli będziemy wyświetlać całość naraz. Z tego powody będziemy wyświetląc całe wartościowanie tylko na życzenie użytkownika, a w preview pokazywać tylko małą ilość wartości przepisanych zmiennym, np. pierwsze pięć dla x1, x2, x3, x4, x5. Dodatkowo nie będziemy wyświetlać wszysktie komponenty z wartościowaniami na jednej stronie, a podzielimy je na kilka, np. na jednej stronie będziemy wyświetlać 8 wartościowań. W końcu komponent z wartościowaniami będzie dawał nam 5 * 8 = 40 stałą ilość dodatkowych elementów na stronie.
-
-Mamy też poradzić z problemem wyświetalania wartościowań dla formuł zawierających dużą liczbę zmiennych. Trudno będzie wyświetlić takie wartościowanie wprost w słupku lub w jednej linii, doprowadzi to do przekroczenia granic ekranu dowolnego rozmiaru wzdłuż osi X lub Y. 
-
-W związku z powyższym proponujemy wieświetlenie rozwiązań w następujący sposób:
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=14.30cm]{8}
-    \caption{Komponent wyświetlający wartościowania}
-    \label{fig:8}
+    \includegraphics[width=14.12cm]{fullsolution}
+\caption{Komponent wyświetlający całe wartościowanie}
+    \label{fig:fullsolution}
 \end{figure}
 
-Klikając na każde z warościowań będzie otwierało się okno pozwalające zobaczyć całe wartościowanie. Widzimy to na rysunku 2.9. Możemy przewijać i oglądać całe wartościowanie, możemy też skopiować go w takiej formie. Widzimy przycisk "Save in a binary form", który pozwala zapisać formułę w postaci zero-jedynkowej do pliku *.txt.
+Wyświetlanie całego wartościowania będzie odbywało się tylko na życzenie użytkownika. Kiedy użytkownik będzie naciskał na dowolne z wartościowań, będzie otwierało się okno pozwalające zobaczyć całość. Widać to na rysunku 2.9. Znajduje się tu przycisk "Save to a file in a 1-0 form", który pozwoli zapisać wartościowanie spełniające formułę do pliku z rozszerzeniem \textit{txt} w postaci słupka zer i jedynek, gdzie każda nowa linia odpowiada za indeks (indeksowanie zaczyna się od liczby 1) zmiennej w formule, a za wartość odpowiada liczba znajdująca się w tej linii. Liczba 0 będzie oznaczała wartość logiczną \textit{false}, a liczba 1 będzie oznaczała wartość logiczną \textit{true}.
 
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=14.30cm]{9}
-    \caption{Wyświetlenie całego wartościowania}
-    \label{fig:9}
-\end{figure}
-
-\newpage
-
-Dopóki użytkownik nie znajdzie co najmniej jedno wartościowanie będzie pokazywany stan komponentu, mówiący o braku rozwiązań: 
-
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=14.30cm]{10}
-    \caption{Stan komponentu mówiący o braku rozwiązań}
-    \label{fig:10}
-\end{figure}
-
-\newpage
+Dopóki użytkownik nie znajdzie co najmniej jednego wartościowania spełniającego formulę, komponent będzie znajdował się w stanie mówiącym o braku rozwiązań.
 
 \subsection{Formuła w postaci CNF}
 
-Komponent, który stworzymy, będzie dawał możliwość zobaczenia i edytowania formuły inaczej, niż w edytorze DIMACS, a mianowicie w zwykłej postaci CNF. Ważne tu jest umieszczenie wszystkiego w wygodny sposób dlatego, że formuły często zawierają dużo klauzul i to może zająć dużo miejsa na ekranie, a im więcej umieszczamy elementów na ekranie, tym wolnejszy staje się rendering tego wszystkiego w przeglądarce. Wolne działanie aplikacji może źle wpłynąć na doświadczenie użytkownika przy korzystaniu z niej, czemu chcemy zapobiec.
+Według projektu, komponent będzie dawał możliwość zobaczenia i edytowania formuły inaczej, niż w edytorze DIMACS, a mianowicie w zwykłej postaci CNF.
 
-Proponujemy stworzenie następnego komponentu:
-
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=14.30cm]{11}
-    \caption{Komponent pozwalający pracować z formułą w postaci CNF}
-    \label{fig:11}
-\end{figure}
-
-\noindent To wszytko to jest ten sam komponent, ale na górze znajduje się w stanie, kiedy formuła jeszcze nie została dodana. Klikając na nagółwek komponentu możemy go zamknąć lub otworzyć. Domyślnie znajduje się w stanie otwartym.
-
-Klikając na plus możemy ręcznie dodawać klauzule do formuły. Pojawi się do tego odpowiednie pole z miejscem do stworzenia wraz z instrukcją, w której jest wytłumaczone jak to prawidłowo zrobić.
-
-W stanie nr.2, nad drugą klauzulą widzimy przyciski pozwalające ją modyfikować. Takie przyciski będą pojawiać się nad każdą klauzulą przy najechaniu na nią myszką. Przy nacisnięciu na śmietnik użytkownik zostanie zapytany, czy napewno chce usunąć klauzule. W razie pozytywej odpowiedzi klauzula będzie usunięta. Przy nacisnięciu na długopis, użytkownik dostaje możliwość do modyfikacji zawartości klauzuli. Kiedy modyfikowanie jest skończone, naciska na przysick "Zapisz", który stanie się dostępny w interfejsie graficznym lub "Enter" na klawiaturze.
-
-Zostało nam jeszcze poradzić z obsługą formuł zawierających dużo liczbę klauzul. Zrobimy to jak w przypadku dużej ilości wartościowań formuły, czyli rozdzielimy dane na strony. Ilość klauzul wyświetlanych na jednej strone będzie stała i znajdowała się w kodzie programu, użytkownik nie będzie w stanie jej zmieniać. Domyślnie na jednej stronie będziemy pokazywali 115 klauzul. Takie rozdzielenie dobrze wpłynie na wydajność aplikacji dlatego, że przeglądarka nie będzie miała renderować całą formułę naraz, a tylko odpowiednią jej część. Wyglądać to będzie następująco:
+Na rysunku \ref{fig:noformula} komponent znajduje się w stanie kiedy formuła jeszcze nie jest dodana. Kiedy użytkownik będzie naciskał na nagółwek komponentu będzie zmieniał jego stan z otwartego na zamknięty i na odwrót. Komponent domyślnie będzie znajdował się w stanie otwartym. Przycisk nr 1 będzie pozwalał ręcznie dodawać klauzule do formuły. Pojawi się do tego odpowiednie pole z miejscem do wpisywania wraz z instrukcją, w której zostanie wytłumaczone jak to prawidłowo zrobić.
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=14.30cm]{12}
-    \caption{Duża formuła rozdzielona na kilka stron}
-    \label{fig:12}
+    \includegraphics[width=14.12cm]{noformula}
+    \caption{Komponent z formułą w stanie, kiedy formuła jeszcze nie została dodana}
+    \label{fig:noformula}
 \end{figure}
 
-\newpage
+Na rysunku \ref{fig:formulacnf} komponent znajduje się w stanie, kiedy formuła już została dodana. Przyciski nr 2 i nr 3 pozwolą modyfikować wybraną klauzulę. Będą pojawiać się nad każdą klauzulą po najechaniu na nią myszką. Przycisk nr 2 będzie pozawalał usunąć klauzulę, po naciśnięciu na niego użytkownik zostanie zapytany, czy na pewno chce to zrobić. W razie pozytywnej odpowiedzi klauzula zostanie usunięta. Po naciśnięciu na przycisk nr 3 użytkownik dostanie możliwość modyfikacji zawartości klauzuli.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=14.12cm]{formulacnf}
+    \caption{Komponent z formułą}
+    \label{fig:formulacnf}
+\end{figure}
+
+Komponent nr 4 da możliwość przemieszczania się po formule. Podobnie jak w przypadku wartościowań spełniających formułę, rozdzielono dane na strony. Ilość klauzul wyświetlanych na jednej stronie będzie stała: domyślnie na jednej stronie maksymalnie będzie wyświetlane 115 klauzul. Takie rozdzielenie dobrze wpłynie na wydajność aplikacji dlatego, że przeglądarka użytkownika nie będzie wyświetlać całą formułę naraz, a tylko odpowiednią jej część.
+
+% \newpage
 
 \subsection{Łączenie formuł}
 
-Został nam do zaprojektowania ostatni komponent, taki, który będzie pozwalał łączyć formuły w formacie DIMACS CNF, zaprojektujemy go w następny sposób: 
+Komponent na rysunku \ref{fig:linker} zawiera dwa pola tekstowe dla formuł, z możliwością modyfikowania oraz cztery przyciski. Przyciski nr 1 i nr 2 pozwolą załadować formuły z plików do pól tekstowych. Kiedy dwie formuły zostaną załadowane, przycisk nr 3 stanie się aktywny i użytkownik dostanie możliwość naciśnięcia go i połączenia formuł. Jeśli nie wystąpią błędy podczas łączenia, pojawi się odpowiedni komunikat, że formuły zostały pomyślnie połączone oraz zostanie odblokowany przycisk nr 4. Kiedy użytkownik naciśnie na ten przycisk, to zostanie przekierowany na stronę z edytorem plików DIMACS CNF, w który już będzie wklejony rezultat łączenia. 
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=14.30cm]{13}
-    \caption{Komponent pozwalający łączyć formuły}
-    \label{fig:13}
+    \includegraphics[width=15.00cm]{linker}
+    \caption{Komponent łączący formuły}
+    \label{fig:linker}
 \end{figure}
 
-\noindent Widzimy tu najpierw dwa edytora i dwa przyciski. Edytory nie mają możliwości sprawdzenia błędów. Do edytorów można wkleić lub załadować formułę z pliku, klikając na przycik nr.1 lub nr.2. Kiedy dwie formuły zostały załadowane, użytkownik może nacisnąć przycisk "LINK FORMULAS". Jeśli nie wystąpiło błędów podczas łączenia, pojawi się odpowiedni komunikat, że formuły zostały pomyślnie połączone oraz odblokuje się przycisk "PASTE RESULT IN THE EDITOR". Kiedy użytkownik kliknie na przycsik nr.4, to zostanie przekierowany na stronę z edytorem w który już będzie wklejony rezultat łączenia.
-
-\section{Architektura aplikacji}
-
-Na frontendzie będziemy robili: wykrycie, wskazywanie i wyświetlenie błędów formuły, synchronizacja zmian formuły w edytorze i w formacie CNF.
-
-Część zadań rozwiążemy na backendzie: stwierdzenie czy formuła jest spełniala i zwrócenie pierwszego wartościowania, znalezienie następnego wartościowania, 
-automatyczne poprawienie formuły, usuwanie zduplikowanych klauzul, łączenie formuł.
-
-Na backendzie stworzymy następne endpointy:
-
-\begin{itemize}
-    \item post /fix ciało dimacs: string 
-    \item post /remove-duplicate ciało dimacs: string
-    \item post  /link  ciało firstDimacs: string and secondDimacs: string
-    \item post /solve ciało dimacs: string and solver: string
-    \item post /next-solution ciało formula: string and solver: string
-\end{itemize}
+Żeby nie obciążać aplikacji i logicznie podzielić ją na zadania, które wykonuje, w projekcie przydzielono temu komponentowi całą oddzielną stronę mająca nazwę "Formulas linker". Reszta omówionych powyżej komponentów będzie znajdowała się na stronie "Home". Użytkownikowi będzie dana możliwość przemieszczania się między stronami.
 
 \chapter{Implementacja}
 
-\section{Narzędzia}
+Kliencka część aplikacji została stworzona za pomocą darmowej i otwartej biblioteki \textbf{React} \cite{reactdocs} dla języka JavaScript przeznaczonej do tworzenia interfejsów graficznych. Serwerowa część została stworzona za pomocą darmowego i otwartego frameworku dla języka Python \textbf{FastAPI} \cite{fastapidocs}. Na serwerze został zainstalowany pakiet \textbf{PySAT} \cite{pysatdocs}, który dał możliwość korzystania z trzynastu zaimplementowanych SAT-solverów. Komunikację pomiędzy klientem a serwerem zapewniono poprzez zapytania HTTP.
 
-\subsection{PySAT}
+Serwerowa część aplikacji odpowiada za następujące zadania:
 
-Darmowa i otwarta biblioteka przeznaczona dla języka Python.
+\begin{itemize}
+    \item Stwierdzenie czy formuła jest lub nie jest spełnialna i zwracanie przykładowego wartościowania spełniającego formułę.
+    \item Znalezienie kolejnego wartościowania spełniającego formułę.
+    \item Usuwanie zduplikowanych klauzul z formuły.
+    \item Automatyczne naprawienie formuły.
+    \item Łączenie formuł.
+    \item Sprawdzenie rzeczywistej liczby klauzul i liczby zadeklarowanych klauzul w formule. W przypadku nierówności tych liczb wyrzucenie błędu.
+    \item Sprawdzenie, czy definicja formuły istnieje. W przypadku jej nieobecności wyrzucenie błędu.
+\end{itemize}
 
-\lipsum[1]
+Kliencka część aplikacji odpowiada za następujące zadania:
 
-\lipsum[2]
+\begin{itemize}
+    \item Dostarczenie użytkownikowi interfejsu graficznego, np. interfejsu do ręcznego poprawienie błędów w formule itd.
+    \item Wizualizacja danych zwróconych z serwera.
+    \item Sprawdzanie na bieżąco w edytorze błędów w formule.
+\end{itemize}
 
-\lipsum[3]
+\section{Typy danych}
 
-\subsection{FastAPI}
+\subsection{Literał}
 
-Darmowa i otwarta biblioteka przeznaczona dla języka Python.
+Literał jest podstawowym elementem, z którego składa się formuła. Literał w implementacji jest liczbą całkowitą i ma typ danych \textit{number}. Taka liczba oznacza indeks literału w formule, np. liczba 1 oznacza literał $x_1$, a liczba -2 oznacza literał $ \neg x_2$.
 
-\lipsum[1]
+\subsection{Klauzula}
 
-\lipsum[2]
+Każda klauzula jest obiektem o następującym typie danych:
 
-\lipsum[3]
+\begin{verbatim}
+                        interface IClause {
+                            id: number;
+                            variables: number[];
+                        }
+\end{verbatim}
 
-\subsection{React}
+\begin{itemize}
+    \item \textbf{id} to unikatowy identyfikator klauzuli. Identyfikator jest potrzebny, żeby prawidłowo znajdować klauzulę do zmodyfikowania lub usunięcia.
+    \item \textbf{variables} to tablica przechowująca literały klauzuli, np. tablica [-1, 2, 3] oznacza $(\neg x_1 \lor x_2 \lor x_3)$
+\end{itemize}
 
-Darmowa i otwarta biblioteka przeznaczona dla języka JavaScript.
+\subsection{Formuła} 
 
-\lipsum[1]
+Formuła składa się z klauzul, więc logiczne jest przedstawienie jej jako tablicę obiektów typu \textit{IClause}. 
 
-\lipsum[2]
+Na przykład następująca struktura w języku JavaScript:
 
-\lipsum[3]
+\begin{verbatim}
+                    [
+                        {
+                            id: 0,
+                            variables: [1, 2, 3]
+                        },
+                        {
+                            id: 1,
+                            variables: [-1, -2]
+                        },
+                        {
+                            id: 2,
+                            variables: [1, -3]
+                        }
+                    ]
+\end{verbatim}
 
-\section{Implementaja edytora}
+\noindent odpowiada następującej formule:
 
-\lipsum[1]
+\begin{center}
+    $(x_1 \lor x_2 \lor x_3) \land (\neg x_1 \lor \neg x_2) \land (x_1 \lor \neg x_3)$
+\end{center}
 
-\lipsum[2]
+\subsection{Błędy}
 
-\lipsum[3]
+Każdy błąd jest obiektem o następującym typie danych:
 
-\section{Implementacja sprawdzarki}
+\begin{verbatim}
+                        interface IError {
+                            line: number;
+                            errorCode: 0 | 1 | 2 | 3 | 4 | 5;
+                            description: string;
+                            damaged: string;
+                        }
+\end{verbatim}
 
-\lipsum[1]
+\begin{itemize}
+    \item \textbf{line} to linia wystąpienia błędu.
+    \item \textbf{errorCode} to kod błędu.
+    \item \textbf{description} to opis błędu.
+    \item \textbf{damaged} to zawartość linii z błędem.
+\end{itemize}
 
-\lipsum[2]
+Wszystkie błędy są przechowywane w tablicy przechowującej obiekty typu \textit{IError}.
 
-\lipsum[3]
+\subsection{Wartościowania spełniające formułę}
 
-\section{Optymalizacje}
+Pojedyncze wartościowanie spełniające formułę jest tablicą liczb całkowitych, w postaci, w jakiej je zwraca SAT-solver, np. tablica [1, 2, -3] oznacza następujące wartościowanie:
 
-\lipsum[1]
+\begin{center}
+    $x_1 = 1, x_2 = 1, x_3 = -1$
+\end{center}
 
-\lipsum[2]
+Wszystkie wartościowania spełniające formułę są przechowywane w tablicy tablic liczb całkowitych.
 
-\lipsum[3]
+\section{Implementacja edytora}
 
-\lipsum[4]
+Podstawą edytora jest wieloliniowe pole tekstowe z wbudowaną możliwością przewijania zawartości po przekroczeniu zadeklarowanej wysokości. Takie pole jest zwykłym tagiem HTML nazywającym się \textit{textarea}. Ma taką samą stałą wysokość, jak i kontener edytora: 545 pikseli.
+
+Z lewej strony w edytorze znajduje się komponent pilnujący liczby linii w wieloliniowym polu tekstowym. Jest kontenerem dla elementów zawierających tekst z indeksem linii. Żeby prawidłowo go wyświetlić, trzeba wiedzieć ile linii jest w pliku z formułą. Liczba linii jest przeliczana za każdym razem, kiedy zmieni się liczba linii w polu tekstowym, a nie sama zawartość pliku, tzn. klauzula, definicja formuły itd. Kontener ma taką samą wysokość jak wieloliniowe pole tekstowe. Dodana została możliwość przewijania zawartości kontenera, kiedy zadeklarowana wysokość będzie przekroczona.
+ 
+Kontener z błędami w edytorze ma taką samą szerokość, jak i wieloliniowe pole tekstowe. Znajduje się warstwę wyżej, dokładnie nad polem tekstowym (ma większą wartość właściwości CSS \textit{z-index}). Każdy błąd wewnątrz kontenera jest oddzielnym komponentem i ma pozycjonowanie relatywne (ang. relative), za co odpowiada właściwości CSS \textit{position} z wartością \textit{relative}. Relatywna pozycja oznacza, że element będzie pozycjonowany względem samego siebie. Położenie każdego elementu posiadającego pozycję relatywną może być sterowane za pomocą właściwości \textit{top}, \textit{bottom}, \textit{right}, \textit{left}. Zmiana położenia elementu za pomocą powyższych właściwości do sterowania nie wpływa na położenie pozostałych elementów. W miejscu sprzed przemieszczeniem zawsze pozostaje "dziura"\;po elemencie, dokładnie jak gdyby ten element nie był w żaden sposób przemieszczony, ale znajdował się w tym samym miejscu i zajmował przestrzeń.
+
+\subsection{Obliczanie położenia linii z błędem}
+
+Położenie każdego błędu w kontenerze jest obliczane oddzielnie i ustawiane za pomocą właściwości CSS \textit{top}, która w przypadku pozycji relatywnej oznacza o ile górna krawędź elementu jest przesunięta poniżej jego normalnej pozycji. Właściwość \textit{top} może przyjmować wartości ujemne. Zwiększenie wartości właściwości \textit{top} będzie oznaczało przemieszczenie elementu do dołu, a zmniejszanie do góry. Poniżej w schematyczny sposób przedstawiono działanie kontenera z błędami.
+
+Domyślnie elementy w kontenerze są umieszczane element pod elementem. Każdy nowo dodany element znajduje się w swojej normalnej pozycji i ma wartość właściwości \textit{top} ustawioną na 0 pikseli:
+
+\begin{verbatim}
+                        ---------kontener---------
+                        (1) err[0] -> top: 0px
+                        (2) err[1] -> top: 0px
+                        (3) err[2] -> top: 0px
+                        ---------kontener---------
+\end{verbatim}
+
+\begin{enumerate}
+    \item Każdy element w kontenerze nazywa się \textit{err} (w rzeczywistości jest czerwonym prostokątem podświetlającym linię z błędem). Ma wysokość 20 pikseli. 
+    \item Liczba znajdująca się w okrągłych nawiasach oznacza numer linii w edytorze.
+    \item Liczba znajdująca się w kwadratowych nawiasach oznacza indeks błędu w tablicy z błędami.
+    \item Strzałka w prawo wskazuje na wartość właściwości CSS \textit{top} tego elementu. \textit{px} oznacza pikseli.
+    \item Symbol $"\&"$ oznacza, że w linii, dokładnie na tym samym miejscu znajdują się 2 elementy. Te elementy nakładają się na siebie.
+\end{enumerate}
+
+
+\noindent Jeśli dodać do kontenera kolejny element z wartością właściwości \textit{top} ustawioną na 20 pikseli, kontener będzie wyglądał następująco:
+
+\begin{verbatim}
+                        ---------kontener---------
+                        (1) err[0] -> top: 0px
+                        (2) err[1] -> top: 0px
+                        (3) err[2] -> top: 0px
+                        (4) "dziura" po err[3] o wysokości 20 pikseli
+                        (5) err[3] -> top: 20px
+                        ---------kontener---------
+\end{verbatim}
+
+\noindent Po przemieszczeniu, w linii nr 4 na normalnej pozycji elementu z indeksem 3 pojawi się "dziura". Jeśli dodać do kontenera następny element i nie ustawiać wartość jego właściwości \textit{top} sytuacja będzie wyglądała następująco:
+
+\newpage
+
+\begin{verbatim}
+                        ---------kontener---------
+                        (1) err[0] -> top: 0px
+                        (2) err[1] -> top: 0px
+                        (3) err[2] -> top: 0px
+                        (4) "dziura" po err[3]
+                        (5) err[3] & err[4] -> top: 20px & top: 0px
+                        ---------kontener---------
+\end{verbatim}
+
+\noindent Widać, że nowy element z indeksem 4 znajduje się na tym samym miejscu, co i element z indeksem 3, przykrywając go. Żeby element z indeksem 4 znalazł się na linii nr 6 trzeba ustawić wartość jego właściwości \textit{top} na 20 pikseli: 
+
+\begin{verbatim}
+                        ---------kontener---------
+                        (1) err[0] -> top: 0px
+                        (2) err[1] -> top: 0px
+                        (3) err[2] -> top: 0px
+                        (4) "dziura" po err[3]
+                        (5) err[3] -> top: 20px & "dziura" po err[4]
+                        (6) err[4] -> top: 20px
+                        ---------kontener---------
+\end{verbatim}
+
+\noindent Żeby element z indeksem 4 znalazł się na linii nr 4 trzeba ustawić wartość jego właściwości \textit{top} na -20 pikseli: 
+
+\begin{verbatim}
+                        ---------kontener---------
+                        (1) err[0] -> top: 0px
+                        (2) err[1] -> top: 0px
+                        (3) err[2] -> top: 0px
+                        (4) err[4] -> top: -20px & "dziura" po err[3]
+                        (5) err[3] -> top: 20px & "dziura" po err[4]
+                        ---------kontener---------
+\end{verbatim}
+
+Biorąc pod uwagę powyższe zachowanie kontenera z elementami mającymi pozycję relatywną, wyprowadzono następująca formułę do obliczania położenia linii z błędem w pikselach:
+
+\begin{center}
+    $(line - index - 1) * errorComponentHeight$
+\end{center}
+
+\noindent gdzie $line \geq 1$ to rzeczywista linia wystąpienia błędu, $index \geq 0$ jest indeksem błędu w tablicy z błędami, a $errorComponentHeight = 20$ jest stałą wysokością czerwonej linii podświetlającej błąd w pikselach.
+
+\subsection{Synchronizacja działania komponentów edytora}
+
+Właściwość \textit{scrollTop} pobiera lub ustawia liczbę pikseli, o którą zawartość elementu została przewinięta. Jeśli zawartość elementu nie może być przewinięta pionowo, właściwość scrollTop elementu zawsze równa się 0.
+
+Domyślnie przewijanie wieloliniowego pola tekstowego, kontenera z numerami linii i kontenera z błędami nie synchronizuje się w żaden sposób: przewijają się całkiem oddzielnie. Potrzebne zachowanie można zapewnić za pomocą właściwości \textit{scrollTop} elementów. Pseudokod tego zdarzenia wygląda następująco:
+
+\begin{verbatim}
+    -> 1. kiedy przewijane jest wieloliniowe pole tekstowe <textarea/>:
+    -> 2.   linesContainer.scrollTop = textarea.scrollTop
+    -> 3.   errorsContainer.scrollTop = textarea.scrollTop
+\end{verbatim}
+
+Aby synchronizacja przewijania działała prawidłowo należy również synchronizować wygląd poszczególnych komponentów. W ostatecznej wersji programu w tym celu dokonano następujące konfiguracji stylów:
+
+\begin{enumerate}
+    \item Wysokości oddzielnych elementów edytora takich jak: krotka z numerem linii, czerwona linia podświetlająca błąd, linia w wieloliniowym polu tekstowym ustawione są na 20 pikseli. Odpowiada za to właściwość CSS \textit{height}.
+    \item Rozmiary czcionek w krotce z numerem linii oraz w wieloliniowym polu tekstowym są ustawione na 16 pikseli. Odpowiada za to właściwość CSS \textit{font-size}.
+    \item Wysokości linii w krotce z numerem linii i wieloliniowym polu tekstowym są ustawione na wartość bez jednostki równą 1.25. Odpowiada za to właściwość CSS \textit{line-height}. Ustawienie wysokości linii na wartości bez jednostki oznacza jej zależność od rozmiaru czcionki w elemencie. Wartość wysokości linii w pikselach wyrażana jest formułą: $\textit{line-height} \times \textit{font-size}$.
+    \item Odstęp wewnętrzny od góry w kontenerze z błędami, kontenerze z numerami linii oraz wieloliniowym polu tekstowym ustawione są na 10 pikseli. Odpowiada za to właściwość CSS \textit{padding-top}.
+    \item Tekst w komponencie edytora wszędzie ma mieć taką samą czcionkę. Odpowiada za to właściwość CSS \textit{font-family}. W programie wybrano czcionkę \textit{Source Code Pro} \cite{fontSourceCodePro}.
+\end{enumerate}
+
+W rezultacie udało się osiągnąć efekt, że wszystkie elementy przewijają się jednocześnie i cały edytor wyglądają jak jedna całość. Czerwone linie podświetlające błąd idealnie są mapowane do swojej linii wystąpienia i podświetlają dokładnie te linie, które trzeba.
+
+\subsection{Informacja o błędzie}
+
+Po najechaniu myszką na czerwony prostokąt podświetlający linię z błędem jest włączany timer na 250 milisekund. Jeśli użytkownik usunie kursor myszki z czerwonej linii przed upływem tego czasu: timer się anuluje. Po przekroczeniu tego czasu jest zapisywana obecna pozycja kursora myszki. Ta informacja jest przekazywana do komponentu ze szczegółami błędu nazywającego się \textit{ErrorInfo}. Zanim będzie wyświetlony na ekranie, najpierw będzie obliczona jego pozycja względem tej konkretnej linii i edytora. 
+
+Dodane są warunki, że komponent ze szczegółami błędu nie może przekroczyć granic edytora ani z prawej, ani z lewej strony. 
+
+Komponent ze szczegółami błędu zwykle jest pokazywany nad czerwoną linią. Dodano również warunek, że komponent będzie pokazywany pod linią z błędem dla pierwszych sześciu linii w wieloliniowym polu tekstowym dlatego, że w przeciwnym przypadku będą przekroczone granicy edytora z góry i komponent ze szczegółami może być częściowo lub całkiem niewidoczny.
+
+\section{Testy}
+
+\subsection{Działanie edytora}
+
+Zakłada się, że podczas pracy z edytorem, będą najczęściej załadowywane formuły niezawierające żadnych błędów lub zawierające ich stosunkowo mało. Przypadki, w których będą załadowywane formuły zawierające dużą liczbę błędów (więcej niż 1000) są pesymistyczne i mało prawdopodobne.
+
+Największą formułą za pomocą której była sprawdzana wydajność działania edytora była formuła zawierająca 3357 zmiennych, 20103 klauzul i 0 błędów. Z testów wynika, że bez problemów daje się pracować z formułami zawierającymi dużą liczbę klauzul i zmiennych: aplikacja działa szybko i nie widać w niej żadnych problemów z wydajnością podczas pracy.
+
+Przeprowadzono kilka testów sprawdzających jak aplikacja działa w zależności od ilości błędów i można powiedzieć, że zależności jest \textit{liniowa}, tzn. im więcej jest błędów, tym wolniejszy staje się proces ich przetwarzania i wyświetlania na ekranie. Skutki tego widać, kiedy błędów jest 4000 i więcej. Edytor zawsze wyświetla całość: setki i tysiące komponentów z numerem linii oraz czerwonych linii podświetlających błędy, nawet jeśli użytkownik je nie widzi. Z jednej strony to jest zaletą ze względu na to, że kiedy wszystkie błędy zostaną znalezione, użytkownik będzie je widział i mógł przemieszczać się po aplikacji płynnie i bez opóźnień. Wadą jest to, że wywoływany na początku długi proces sprawdzenie błędów może powodować zawieszanie programu przez jakiś czas. 
+
+\subsection{Zmiana struktury danych przechowującej błędy}
+
+W ostatecznej wersji programu błędy są przechowywane w tablicy jako następujące obiekty:
+
+\begin{verbatim}
+                {
+                    line: number;
+                    errorCode: 0 | 1 | 2 | 3 | 4 | 5;
+                    description: string;
+                    damaged: string;
+                }
+\end{verbatim}
+
+W celu polepszenia wydajność aplikacji podczas przetwarzania formuł zawierających dużą liczbę błędów została podjęta próba zmiany struktury danych przechowującej błędy na bardziej pasującą do tych danych. Linia wystąpienia błędu jest unikatowa, z tego powodu wybrano \textit{tablicę haszującą (ang. hash table)}. 
+
+W repozytorium z kliencką częścią aplikacji na GitHub \cite{github} stworzono gałąź eksperymentalną, nazywającą się \textit{experimental-map}. Podjęto decyzję zamiany tablicy na obiekt, który będzie przechowywał obiekty, w których kluczem będzie linia wystąpienia błędu, a wartością będzie obiekt zawierający szczegółowe informacje o błędzie. Ten obiekt będzie miał następujący typ danych:
+
+\newpage
+
+\begin{verbatim}
+                {
+                    [line: string]: {
+                        errorCode: 0 | 1 | 2 | 3 | 4 | 5;
+                        description: string;
+                        damaged: string;
+                    }
+                }
+\end{verbatim}
+
+\noindent Każdy obiekt jest tablicą haszującą w języku JavaScript. Zakładano, że po zamianie tablicy na tę strukturę polepszy się średnia złożoność wyszukiwania i usunięcia błędu. 
+
+Zrobiono kilka testów i niestety okazało się, że po zmianie struktury danych na tablicę haszującą działanie programu stało się wolniejsze, niż w rozwiązaniu ze zwykłą tablicą, zwłaszcza dla dużych formuł zawierających dużą liczbą błędów.
+
+Przekształcenie kodu programu i wdrążenie nowej struktury danych nie było łatwe, to wymagało dużo zmian w różnych częściach aplikacji. W wielu miejscach kod stał się bardziej skomplikowany i mniej czytelny. Rozwiązanie z tablicą błędów jest czytelniejsze, wydajniejsze i łatwiejsze w implementacji, z tego powodu w ostatecznej wersji zostawiono go.
 
 \chapter*{Podsumowanie}
 \addcontentsline{toc}{chapter}{Podsumowanie}
 
-Chcemy, żeby nasz program stał się początkiem tworzenia interfejsów graficznych dla różnych rodzajów SAT-solverów. Ze względu na brak takich programów. W tej pracy dotknęliśmy tylko mało część, dużo rzeczy można jeszcze do tego dodać.
+Zaprojektowano i zaimplementowano webowy interfejs graficzny SAT-solvera. Wszystkie założenia aplikacji zostały spełnione. Pozwala ona wygodnie pracować z formułami w postaci DIMACS CNF lub zwykłym CNF oraz znajdować i wyświetlać wartościowania spełniające formułę.
 
-Będę \cite{einstein} zawsze otwarty na takie propozycję na GitHubie. Chciałbym, żeby \cite{dirac} studenci naszej uczelni w \cite{dirac} swoich pracach licencjackich lub \cite{knuthwebsite} nawet magisterskich \cite{knuth-fa} kontynuowali rozwijanie i polepszenie naszego programu.
+Stworzoną aplikację można by było rozwinąć w następujący sposób:
+
+\begin{itemize}
+    \item Dodać inne rodzaje SAT-solverów, np. rozwiązujący problem MAX-SAT.
+    \item W komponencie do pracy z formułą w postaci CNF można dodać wyszukiwanie potrzebnych klauzul do zmodyfikowania.
+    \item Usprawnić wydajność przetwarzanie dużej ilości błędów w formule w edytorze.
+\end{itemize}
+
+\noheadertext{Podsumowanie}
 
 \listoffigures{}
 \addcontentsline{toc}{chapter}{Spis rysunków}
+
+\noheadertext{Spis rysunków}
 
 \printbibliography[title=Bibliografia]
 \addcontentsline{toc}{chapter}{Bibliografia}

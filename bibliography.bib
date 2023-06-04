@@ -1,39 +1,52 @@
-@article{einstein,
-    author = "Albert Einstein",
-    title = "{Zur Elektrodynamik bewegter K{\"o}rper}. ({German})
-    [{On} the electrodynamics of moving bodies]",
-    journal = "Annalen der Physik",
-    volume = "322",
-    number = "10",
-    pages = "891--921",
-    year = "1905",
-    DOI = "http://dx.doi.org/10.1002/andp.19053221004",
-    keywords = "physics"
+@misc{reactdocs,
+  title  = {Dokumentacja biblioteki React},
+  note   = {URL: \url{https://react.dev/}, dostęp 28.06.2023}
 }
 
-@book{dirac,
-    title = {The Principles of Quantum Mechanics},
-    author = {Paul Adrien Maurice Dirac},
-    isbn = {9780198520115},
-    series = {International series of monographs on physics},
-    year = {1981},
-    publisher = {Clarendon Press},
-    keywords = {physics}
+@misc{fastapidocs,
+  title  = {Dokumentacja frameworku FastAPI},
+  note   = {URL: \url{https://fastapi.tiangolo.com/}, dostęp 28.06.2023}
 }
 
-@online{knuthwebsite,
-    author = "Donald Knuth",
-    title = "Knuth: Computers and Typesetting",
-    url  = "http://www-cs-faculty.stanford.edu/~uno/abcde.html",
-    addendum = "(accessed: 01.09.2016)",
-    keywords = "latex,knuth"
+@inproceedings{pysatdocs,
+  author    = {Alexey Ignatiev and Antonio Morgado and Joao Marques{-}Silva},
+  title     = {{PySAT:} {A} {Python} Toolkit for Prototyping with {SAT} Oracles},
+  booktitle = {SAT},
+  pages     = {428--437},
+  year      = {2018},
+  url       = {https://doi.org/10.1007/978-3-319-94144-8_26},
+  doi       = {10.1007/978-3-319-94144-8_26}
 }
 
-@inbook{knuth-fa,
-    author = "Donald E. Knuth",
-    title = "Fundamental Algorithms",
-    publisher = "Addison-Wesley",
-    year = "1973",
-    chapter = "1.2",
-    keywords  = "knuth,programming"
+@misc{dimacsdocs,
+  title = {O formacie DIMACS CNF},
+  note  = {URL: \url{https://people.sc.fsu.edu/~jburkardt/data/cnf/cnf.html}, dostęp 28.06.2023}
 }
+
+@misc{github,
+  title  = {Repozytorium klienckiej części aplikacji, gałąź experimental-map},
+  note   = {URL: \url{https://github.com/vvvvvvvector/SAT-solver-graphical-interface-client/tree/experimental-map}, dostęp 28.06.2023}
+}
+
+@misc{fontSourceCodePro,
+  title  = {Czcionka Source Code Pro},
+  note   = {URL: \url{https://fonts.google.com/specimen/Source+Code+Pro}, dostęp 28.06.2023}
+}
+
+@inproceedings{pmsat,
+  author    = {Fu, Zhaohui
+               and Malik, Sharad},
+  editor    = {Biere, Armin
+               and Gomes, Carla P.},
+  title     = {On Solving the Partial MAX-SAT Problem},
+  booktitle = {Theory and Applications of Satisfiability Testing - SAT 2006},
+  year      = {2006},
+  publisher = {Springer Berlin Heidelberg},
+  address   = {Berlin, Heidelberg},
+  pages     = {252--265},
+  abstract  = {Boolean Satisfiability (SAT) has seen many successful applications in various fields such as Electronic Design Automation and Artificial Intelligence. However, in some cases, it may be required/preferable to use variations of the general SAT problem. In this paper, we consider one important variation, the Partial MAX-SAT problem. Unlike SAT, Partial MAX-SAT has certain constraints (clauses) that are marked as relaxable and the rest are hard, i.e. non-relaxable. The objective is to find a variable assignment that satisfies all non-relaxable clauses together with the maximum number of relaxable ones. We have implemented two solvers for the Partial MAX-SAT problem using a contemporary SAT solver, zChaff. The first approach is a novel diagnosis based algorithm; it iteratively analyzes the UNSAT core of the current SAT instance and eliminates the core through a modification of the problem instance by adding relaxation variables. The second approach is encoding based; it constructs an efficient auxiliary counter that constrains the number of relaxed clauses and supports binary search or linear scan for the optimal solution. Both solvers are complete as they guarantee the optimality of the solution. We discuss the relative strengths and thus applicability of the two solvers for different solution scenarios. Further, we show how both techniques benefit from the persistent learning techniques of incremental SAT. Experiments using practical instances of this problem show significant improvements over the best known solvers.},
+  isbn      = {978-3-540-37207-3}
+}
+
+
+
